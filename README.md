@@ -68,9 +68,12 @@ Points of interest:
 
  * you will be presented with the [QEMU monitor](https://qemu.readthedocs.io/en/latest/system/monitor.html)
  * you can access the VM via `make spice` as before
- * image has an snapshot called 'initial' which provides you with a point to restore to
  * we use the image in 'snapshot' mode with means nothing is persisted back to the image
  * if you wish to persist your changes you should halt (*not* shutdown) your VM and run from the monitor console
 
        commit all
        quit
+
+ * image has an snapshot called 'initial' which provides you with a point to restore to using
+
+       qemu-img snapshot -a initial output-main/packer-main
