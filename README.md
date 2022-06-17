@@ -61,10 +61,17 @@ Where:
 
 Once the image has built (at least 30 minutes), you will be left with a qcow2 image at `output-main/packer-main`.
 
-You can use it with:
+To start a VM using this image, run:
 
     make vm CORES=2 RAM=4096 SPICE=5930
 
-This will start the VM and present you with the [QEMU monitor](https://qemu.readthedocs.io/en/latest/system/monitor.html).
+Points of interest:
 
-You can access the VM via `make spice` as usual.
+ * you will be presented with the [QEMU monitor](https://qemu.readthedocs.io/en/latest/system/monitor.html)
+ * you can access the VM via `make spice` as before
+ * image has an snapshot called 'initial' which provides you with a point to restore to
+ * we use the image in 'snapshot' mode with means nothing is persisted back to the image
+ * if you wish to persist your changes you should halt (*not* shutdown) your VM and run from the monitor console
+
+       commit all
+       quit
