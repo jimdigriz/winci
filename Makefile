@@ -18,14 +18,28 @@ endif
 
 CURL = curl -fRL --compressed -C - --retry 3 -o $(2) $(3) $(1)
 
+# https://github.com/virtio-win/virtio-win-guest-tools-installer/issues/33
+VIRTIO_URL ?= https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/archive-virtio/virtio-win-0.1.215-2/virtio-win.iso
+
 VIRTIO_URL ?= https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/stable-virtio/virtio-win.iso
 IMAGE ?= $(lastword $(sort $(wildcard Windows11_InsiderPreview_Client_x64_*.iso)))
 ifeq ($(IMAGE),)
 $(error download an ISO from https://www.microsoft.com/software-download/windowsinsiderpreviewiso)
 endif
-LOCALE ?= $(word 5,$(subst _, ,$(IMAGE)))
+VERSION ?= $(word 6,$(subst _, ,$(basename $(IMAGE))))
+LOCALE ?= $(word 5,$(subst _, ,$(basename $(IMAGE))))
 
-OBJS = $(IMAGE) Autounattend.xml $(wildcard Autounattend/*) virtio-win.iso
+ifeq ($(KERNEL),linux)
+ACCEL ?= kvm:tcg
+else ifeq ($(KERNEL),darwin)
+ACCEL ?= hvf:tcg
+else
+ACCEL ?= tcg
+endif
+RAM ?= 4096
+CORES ?= 2
+
+OBJS = $(IMAGE) Autounattend.xml $(wildcard Autounattend/*) virtio-win.iso Autounattend/sdelete64.exe
 
 CLEAN =
 DISTCLEAN =
@@ -55,27 +69,40 @@ virtio-win.iso:
 	$(call CURL,$(VIRTIO_URL),$@)
 DISTCLEAN += virtio-win.iso
 
-hda.qcow2: output-main/packer-main
-	qemu-img convert -p -c -O qcow2 $< $@
-	qemu-img snapshot -c initial hda.qcow2
-CLEAN += hda.qcow2
+SDelete.zip:
+	$(call CURL,https://download.sysinternals.com/files/SDelete.zip,$@)
+DISTCLEAN += SDelete.zip
+
+Autounattend/sdelete64.exe: SDelete.zip
+	unzip -oDD -d $(@D) $< $(@F)
+CLEAN += Autounattend/sdelete64.exe
 
 %: %.m4
-	m4 -D LOCALE=$(LOCALE) -D COMMITID=$(COMMITID) $< > $@
+	m4 -D VERSION=$(VERSION) -D LOCALE=$(LOCALE) -D COMMITID=$(word 1,$(subst -, ,$(COMMITID))) $< > $@
 CLEAN += Autounattend.xml
 
+hda.qcow2: output-main/packer-main
+	@# using one coroutine is 2x faster than any higher value (compression?)
+	qemu-img convert -c -o lazy_refcounts=on -m 1 -p -O qcow2 $< $@
+	qemu-img snapshot -c initial $@
+
 output-main/packer-main: PACKER_BUILD_FLAGS += -var iso_url='$(IMAGE)'
-output-main/packer-main: PACKER_BUILD_FLAGS += -var iso_url_virtio='virtio-win.iso'
-output-main/packer-main: setup.pkr.hcl .stamp.packer $(OBJS)
+output-main/packer-main: PACKER_BUILD_FLAGS += -var iso_url_virtio=virtio-win.iso
+output-main/packer-main: PACKER_BUILD_FLAGS += -var accel=$(ACCEL)
+output-main/packer-main: PACKER_BUILD_FLAGS += -var ram=$(RAM)
+output-main/packer-main: PACKER_BUILD_FLAGS += -var cores=$(CORES)
+output-main/packer-main: setup.pkr.hcl .stamp.packer $(OBJS) | notdirty
 	env TMPDIR=$(CURDIR) ./packer build -on-error=ask -only qemu.main $(PACKER_BUILD_FLAGS) $<
-CLEAN += output-main/packer-main
+CLEAN += output-main
 
 .PHONY: vm
 vm: SPICE ?= 5930
 vm: WINRM ?= 5985
-vm: hda.qcow2
+vm: output-main/packer-main
 	env TMPDIR='$(PWD)' qemu-system-x86_64 \
-		-cpu qemu64
+		-machine q35,accel=$(ACCEL) \
+		-cpu qemu64 \
+		-m $(MEM) \
 		-nodefaults \
 		-serial none \
 		-parallel none \
@@ -85,9 +112,10 @@ vm: hda.qcow2
 		-device virtserialport,chardev=spicechannel0,name=com.redhat.spice.0 \
 		-chardev spicevmc,id=spicechannel0,name=vdagent \
 		-netdev user,id=user.0,hostfwd=tcp:127.0.0.1:$(WINRM)-:5985 \
+		-device virtio-net-pci,netdev=user.0 \
 		-device virtio-balloon \
 		-device ahci,id=ahci \
-		-drive if=virtio,file=$<,discard=unmap,detect-zeroes=unmap,snapshot=on,format=qcow2 \
+		-drive if=virtio,file=$<,discard=unmap,detect-zeroes=unmap,snapshot=on,format=qcow2,cache=unsafe \
 		-drive if=none,id=cdrom0,media=cdrom,readonly=on \
 		-device ide-cd,drive=cdrom0,bus=ahci.1 \
 		-device qemu-xhci \

@@ -2,4 +2,10 @@
 !.gitignore
 
 packer*
+
 *.iso
+
+Autounattend.xml
+
+SDelete.zip
+Autounattend/sdelete64.exe

@@ -129,6 +129,31 @@
 		</component>
 	</settings>
 
+        <settings pass="generalize">
+		<component name="Microsoft-Windows-PnpSysprep"
+				publicKeyToken="31bf3856ad364e35" language="neutral"
+				versionScope="nonSxS" processorArchitecture="amd64"
+				xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State">
+			<PersistAllDeviceInstalls>true</PersistAllDeviceInstalls>
+		</component>
+	</settings>
+
+        <settings pass="specialize">
+		<component name="Microsoft-Windows-Setup"
+				publicKeyToken="31bf3856ad364e35" language="neutral"
+				versionScope="nonSxS" processorArchitecture="amd64"
+				xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State">
+			<ComputerName>`W'VERSION-COMMITID</ComputerName>
+		</component>
+
+		<component name="Security-Malware-Windows-Defender"
+				publicKeyToken="31bf3856ad364e35" language="neutral"
+				versionScope="nonSxS" processorArchitecture="amd64"
+				xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State">
+			<DisableAntiSpyware>true</DisableAntiSpyware>
+		</component>
+	</settings>
+
 	<settings pass="oobeSystem">
 		<component name="Microsoft-Windows-International-Core"
 				publicKeyToken="31bf3856ad364e35" language="neutral"
@@ -161,14 +186,17 @@
 			</AutoLogon>
 			<OOBE>
 				<HideEULAPage>true</HideEULAPage>
-				<NetworkLocation>Work</NetworkLocation>
-				<ProtectYourPC>1</ProtectYourPC>
-				<HideWirelessSetupInOOBE>true</HideWirelessSetupInOOBE>
+				<ProtectYourPC>3</ProtectYourPC>
 			</OOBE>
-			<TimeZone>UTC</Timezone>
+			<TimeZone>UTC</TimeZone>
 			<FirstLogonCommands>
-				<SynchronousCommand wcm:action="add">
+				<!-- WinRM only works for Private networks and <NetworkLocation> no longer works -->
+				<SynchronousCommand>
 					<Order>1</Order>
+					<CommandLine>powershell.exe -Command "Get-NetConnectionProfile | ForEach-Object { Set-NetConnectionProfile -InterfaceIndex $_.InterfaceIndex -NetworkCategory Private }"</CommandLine>
+				</SynchronousCommand>
+				<SynchronousCommand wcm:action="add">
+					<Order>2</Order>
 					<CommandLine>A:\Autounattend\winrmConfig.bat</CommandLine>
 				</SynchronousCommand>
 			</FirstLogonCommands>
