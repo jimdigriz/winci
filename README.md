@@ -11,13 +11,12 @@ Create suitable Microsoft Windows images for CI.
 
 ## Issues
 
- * `setup.bat`:
-     * find a way to disable Windows Defender from the CLI without a reboot
-         * this does *not* work as the 'Tamper Protection' needs to be done from meatspace:
+ * find a way to disable Windows Defender from the CLI without a reboot
+     * this does *not* work as the 'Tamper Protection' needs to be done from meatspace:
 
-               powershell.exe -Command "Set-MpPreference -DisableRealTimeMonitoring $true"
+           powershell.exe -Command "Set-MpPreference -DisableRealTimeMonitoring $true"
 
-         * [...one interesting approach](https://github.com/mandiant/commando-vm/issues/136#issuecomment-674270169)
+     * [...one interesting approach](https://github.com/mandiant/commando-vm/issues/136#issuecomment-674270169)
 
 # Preflight
 
