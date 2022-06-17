@@ -23,14 +23,17 @@ Create suitable Microsoft Windows images for CI.
 
 # Preflight
 
- * download the [Windows 11 Insider Preview ISO (Dev Channel, tested with build 25140)](https://www.microsoft.com/software-download/windowsinsiderpreviewiso) into the top of project directory
+You will need the following installed:
+
  * [QEMU (tested with 7.0.0)](https://www.qemu.org/)
  * [SPICE client](https://www.spice-space.org/)
+ * `curl`
  * GNU `make`
      * macOS users will need to run `gmake` where `make` is described instead
  * `m4`
- * `curl`
  * `unzip`
+
+Before starting to build the image, you need to download the [Windows 11 Insider Preview ISO (Dev Channel, tested with build 25140)](https://www.microsoft.com/software-download/windowsinsiderpreviewiso) into the top of project directory.
 
 # Usage
 
