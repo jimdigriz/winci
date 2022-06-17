@@ -101,6 +101,7 @@ vm: output-main/packer-main
 	env TMPDIR='$(PWD)' qemu-system-x86_64 \
 		-machine q35,accel=$(ACCEL) \
 		-cpu qemu64 \
+		-smp cpus=$(CORES) \
 		-m $(RAM) \
 		-nodefaults \
 		-serial none \
