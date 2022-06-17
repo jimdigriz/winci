@@ -42,7 +42,7 @@ source "qemu" "main" {
   qemu_img_args {
     create = [ "-o", "lazy_refcounts=on,preallocation=metadata" ]
     # using one coroutine is 2x faster than any higher value (compression?)
-    convert = [ "-o", "lazy_refcounts=on", "-m", "1", "-p" ]
+    convert = [ "-o", "lazy_refcounts=on", "-m", "1" ]
   }
 
   iso_url = "/dev/null"
