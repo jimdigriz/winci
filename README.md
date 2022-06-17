@@ -43,7 +43,7 @@ Create the image using:
 
 Where:
 
- * **`CORES` (default: `2`):** number of CPUs to provide to the VM
+ * **`CORES` (default: `2`, must be more than 1):** number of CPUs to provide to the VM
  * **`RAM` (default: `4096`):** amount of RAM to provide to the VM in MiB
  * **`ACCEL` (default: suitable for your OS):** QEMU accelerator to use
      * **Linux:** `kvm`
