@@ -120,7 +120,8 @@ vm: output-main/packer-main
 		-device ide-cd,drive=cdrom0,bus=ahci.1 \
 		-device qemu-xhci \
 		-device usb-tablet \
-		-device usb-kbd
+		-device usb-kbd \
+		-monitor stdio
 
 .PHONY: spice
 spice: SPICE ?= 5930

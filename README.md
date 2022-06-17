@@ -64,3 +64,7 @@ Once the image has built (at least 30 minutes), you will be left with a qcow2 im
 You can use it with:
 
     make vm CORES=2 RAM=4096 SPICE=5930
+
+This will start the VM and present you with the [QEMU monitor](https://qemu.readthedocs.io/en/latest/system/monitor.html).
+
+You can access the VM via `make spice` as usual.
