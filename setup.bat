@@ -19,14 +19,14 @@ powercfg -x -monitor-timeout-dc 0
 @rem no need to hibernate in a VM
 powercfg.exe /hibernate off
 
-@rem qcow2 image is compressed with zlib which is better than the
-@rem NTFS methods so we actually want to uncompress everything
+@rem qcow2 image is compressed with zlib which is better than the NTFS method
 @rem with compactos:always/sdelete 30min build and +10% larger qcow2
-@rem with compactos:never 20min build
-compact.exe /compactos:never
+@rem with compactos:never 25min build and +5% larger qcow2
+@rem not run at all, 20min build
+@rem compact.exe /compactos:never
 
-@rem defrag includes a retrim
-defrag.exe C: /u /v /h
+@rem use powershell version as we get better running status (Defrag automatically does ReTrim)
+powershell.exe -Command "Optimize-Volume -Verbose -DriveLetter C -Defrag -NormalPriority"
 
 @rem DISABLED - retrim makes this unnecessary, sdelete actually makes the output image larger!
 @rem https://docs.microsoft.com/en-us/sysinternals/downloads/sdelete
