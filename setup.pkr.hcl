@@ -37,10 +37,12 @@ source "qemu" "main" {
   format = "qcow2"
   disk_size = "40960M"
   disk_compression = true
-  # we do this ourselves so we get a progress bar which is not hidden by packer
-  skip_compaction = true
+  # we would prefer to do this ourselves to see a progress bar, but packer (1.8.1) ignores this option and eats stdout
+  #skip_compaction = true
   qemu_img_args {
     create = [ "-o", "lazy_refcounts=on,preallocation=metadata" ]
+    # using one coroutine is 2x faster than any higher value (compression?)
+    convert = [ "-o", "lazy_refcounts=on", "-m", "1", "-p" ]
   }
 
   iso_url = "/dev/null"

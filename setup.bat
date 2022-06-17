@@ -8,8 +8,16 @@ reg add "HKLM\SYSTEM\CurrentControlSet\Control\TimeZoneInformation" /v RealTimeI
 @rem this is perfect as we use the image in snapshot mode and want that file zero'd out to make the image smaller
 reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v ClearPageFileAtShutdown /t REG_DWORD /d 1 /f
 
+@rem for our needs Windows Defender is not needed
+powershell.exe -Command "Set-MpPreference -DisableRealTimeMonitoring $true"
+
 E:\virtio-win-gt-x64.msi /quiet /passive /norestart
 E:\virtio-win-guest-tools.exe /quiet /passive /norestart
+
+@rem disable screensaver and power saver
+powershell.exe -Command "Set-ItemProperty 'HKCU:\Control Panel\Desktop' -Name ScreenSaveActive -Value 0 -Type DWord"
+powercfg -x -monitor-timeout-ac 0
+powercfg -x -monitor-timeout-dc 0
 
 @rem no need to hibernate in a VM
 powercfg.exe /hibernate off

@@ -81,11 +81,6 @@ CLEAN += Autounattend/sdelete64.exe
 	m4 -D VERSION=$(VERSION) -D LOCALE=$(LOCALE) -D COMMITID=$(word 1,$(subst -, ,$(COMMITID))) $< > $@
 CLEAN += Autounattend.xml
 
-hda.qcow2: output-main/packer-main
-	@# using one coroutine is 2x faster than any higher value (compression?)
-	qemu-img convert -c -o lazy_refcounts=on -m 1 -p -O qcow2 $< $@
-	qemu-img snapshot -c initial $@
-
 output-main/packer-main: PACKER_BUILD_FLAGS += -var iso_url='$(IMAGE)'
 output-main/packer-main: PACKER_BUILD_FLAGS += -var iso_url_virtio=virtio-win.iso
 output-main/packer-main: PACKER_BUILD_FLAGS += -var accel=$(ACCEL)
@@ -93,6 +88,7 @@ output-main/packer-main: PACKER_BUILD_FLAGS += -var ram=$(RAM)
 output-main/packer-main: PACKER_BUILD_FLAGS += -var cores=$(CORES)
 output-main/packer-main: setup.pkr.hcl .stamp.packer $(OBJS) | notdirty
 	env TMPDIR=$(CURDIR) ./packer build -on-error=ask -only qemu.main $(PACKER_BUILD_FLAGS) $<
+	qemu-img snapshot -c initial $@
 CLEAN += output-main
 
 .PHONY: vm
@@ -102,7 +98,7 @@ vm: output-main/packer-main
 	env TMPDIR='$(PWD)' qemu-system-x86_64 \
 		-machine q35,accel=$(ACCEL) \
 		-cpu qemu64 \
-		-m $(MEM) \
+		-m $(RAM) \
 		-nodefaults \
 		-serial none \
 		-parallel none \
