@@ -59,7 +59,7 @@ Where:
 
  * **`SPICE` (default: `5930`):** port to connect on
 
-Once the image has built (at least 30 minutes), you will be left with a QCOW2 image at `output-main/packer-main`.
+Once the image has built (at least 30 minutes), you will be left with a qcow2 image at `output-main/packer-main`.
 
 You can use it with:
 
