@@ -18,7 +18,6 @@ Create suitable Microsoft Windows images for CI.
                powershell.exe -Command "Set-MpPreference -DisableRealTimeMonitoring $true"
 
          * [...one interesting approach](https://github.com/mandiant/commando-vm/issues/136#issuecomment-674270169)
-     * unable to figure out how to get `/exe:lzx` to work with `compact.exe`
 
 # Preflight
 
