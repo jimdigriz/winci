@@ -11,15 +11,14 @@ Create suitable Microsoft Windows images for CI.
 
 ## Issues
 
- * `Autounattend.xml`:
-     * WinPE:
-         * would be nice to get rid of the delayed ten second restart
  * `setup.bat`:
-     * unable to figure out how to get `/exe:lzx` to work with `compact.exe`
      * find a way to disable Windows Defender from the CLI without a reboot
-     * is `sdelete` worth it?
-         * we already defrag/retrim
-         * number of blocks used by the sparse file does not change much after the process
+         * this does *not* work as the 'Tamper Protection' needs to be done from meatspace:
+
+               powershell.exe -Command "Set-MpPreference -DisableRealTimeMonitoring $true"
+
+         * [...one interesting approach](https://github.com/mandiant/commando-vm/issues/136#issuecomment-674270169)
+     * unable to figure out how to get `/exe:lzx` to work with `compact.exe`
 
 # Preflight
 
@@ -34,6 +33,8 @@ You will need the following installed:
  * `unzip`
 
 Before starting to build the image, you need to download the [Windows 11 Insider Preview ISO (Dev Channel, tested with build 25140)](https://www.microsoft.com/software-download/windowsinsiderpreviewiso) into the top of project directory.
+
+Make sure you have at least 30 GiB of disk space to work with.
 
 # Usage
 

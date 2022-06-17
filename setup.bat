@@ -8,9 +8,6 @@ reg add "HKLM\SYSTEM\CurrentControlSet\Control\TimeZoneInformation" /v RealTimeI
 @rem this is perfect as we use the image in snapshot mode and want that file zero'd out to make the image smaller
 reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v ClearPageFileAtShutdown /t REG_DWORD /d 1 /f
 
-@rem for our needs Windows Defender is not needed
-powershell.exe -Command "Set-MpPreference -DisableRealTimeMonitoring $true"
-
 E:\virtio-win-gt-x64.msi /quiet /passive /norestart
 E:\virtio-win-guest-tools.exe /quiet /passive /norestart
 
@@ -22,11 +19,16 @@ powercfg -x -monitor-timeout-dc 0
 @rem no need to hibernate in a VM
 powercfg.exe /hibernate off
 
-compact.exe /compactos:always
+@rem qcow2 image is compressed with zlib which is better than the
+@rem NTFS methods so we actually want to uncompress everything
+@rem with compactos:always/sdelete 30min build and +10% larger qcow2
+@rem with compactos:never 20min build
+compact.exe /compactos:never
 
-@rem retrims too
+@rem defrag includes a retrim
 defrag.exe C: /u /v /h
 
+@rem DISABLED - retrim makes this unnecessary, sdelete actually makes the output image larger!
 @rem https://docs.microsoft.com/en-us/sysinternals/downloads/sdelete
-reg add "HKCU\Software\Sysinternals\SDelete" /v EulaAccepted /t REG_DWORD /d 1 /f
-A:\Autounattend\sdelete64.exe -nobanner -z C:
+@rem reg add "HKCU\Software\Sysinternals\SDelete" /v EulaAccepted /t REG_DWORD /d 1 /f
+@rem A:\Autounattend\sdelete64.exe -nobanner -z C:

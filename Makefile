@@ -39,7 +39,7 @@ endif
 RAM ?= 4096
 CORES ?= 2
 
-OBJS = $(IMAGE) Autounattend.xml $(wildcard Autounattend/*) virtio-win.iso Autounattend/sdelete64.exe
+OBJS = $(IMAGE) Autounattend.xml $(wildcard Autounattend/*)
 
 CLEAN =
 DISTCLEAN =
@@ -68,14 +68,17 @@ endif
 virtio-win.iso:
 	$(call CURL,$(VIRTIO_URL),$@)
 DISTCLEAN += virtio-win.iso
+OBJS += virtio-win.iso
 
-SDelete.zip:
-	$(call CURL,https://download.sysinternals.com/files/SDelete.zip,$@)
-DISTCLEAN += SDelete.zip
-
-Autounattend/sdelete64.exe: SDelete.zip
-	unzip -oDD -d $(@D) $< $(@F)
-CLEAN += Autounattend/sdelete64.exe
+# see setup.bat for reason why this is commented out
+#SDelete.zip:
+#	$(call CURL,https://download.sysinternals.com/files/SDelete.zip,$@)
+#DISTCLEAN += SDelete.zip
+#
+#Autounattend/sdelete64.exe: SDelete.zip
+#	unzip -oDD -d $(@D) $< $(@F)
+#CLEAN += Autounattend/sdelete64.exe
+#OBJS += Autounattend/sdelete64.exe
 
 %: %.m4
 	m4 -D VERSION=$(VERSION) -D LOCALE=$(LOCALE) -D COMMITID=$(word 1,$(subst -, ,$(COMMITID))) $< > $@
