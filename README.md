@@ -34,7 +34,9 @@ Create suitable Microsoft Windows images for CI.
 
 # Usage
 
-    make hda.qcow2 CORES=2 RAM=4096
+Create the image using:
+
+    make CORES=2 RAM=4096
 
 Where:
 
@@ -44,7 +46,7 @@ Where:
      * **Linux:** `kvm`
      * **macOS:** `hvf`
 
-**N.B.** to see detailed debugging, set the environment variable 'PACKER_LOG=1'
+**N.B.** to see detailed debugging, set the environment variable `PACKER_LOG=1`
 
 Whilst the build runs, you can connect with:
 
@@ -54,6 +56,8 @@ Where:
 
  * **`SPICE` (default: `5930`):** port to connect on
 
-Once the image has built (at least 30 minutes), you can run it with:
+Once the image has built (at least 30 minutes), you will be left with a QCOW2 image at `output-main/packer-main`.
+
+You can use it with:
 
     make vm CORES=2 RAM=4096 SPICE=5930

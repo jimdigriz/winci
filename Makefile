@@ -45,7 +45,7 @@ CLEAN =
 DISTCLEAN =
 
 .PHONY: all
-all: vm
+all: output-main/packer-main
 
 .PHONY: clean
 clean:
