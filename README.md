@@ -1,7 +1,5 @@
 Create suitable Microsoft Windows images for CI.
 
-**N.B.** currently only Windows 11 Insider Preview is supported
-
 ## Related Links
 
  * [packer](https://www.packer.io/docs)
@@ -11,6 +9,8 @@ Create suitable Microsoft Windows images for CI.
 
 ## Issues
 
+ * currently only Windows 11 Insider Preview is supported
+ * ...still yet to describe how to use this image (ie. through WinRM and/or OpenSSH) for CI purposes.
  * find a way to disable Windows Defender from the CLI without a reboot
      * this does *not* work as the 'Tamper Protection' needs to be done from meatspace:
 
