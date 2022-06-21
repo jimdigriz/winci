@@ -73,15 +73,15 @@ If you wish to use VNC (for example if you are a macOS user) then you should loo
 
 Then point your VNC client at the `proto://host:port` it lists; the example here shows `vnc://127.0.0.1:5909` so you could connect with:
 
-    ssvncviewer 127.0.0.1:5909
+    vncviewer 127.0.0.1:5909
 
 Or:
 
-    ssvncviewer :5909
+    vncviewer :5909
 
 Or:
 
-    ssvncviewer :9
+    vncviewer :9
 
 ### SPICE
 
