@@ -10,9 +10,11 @@ Create suitable Microsoft Windows images for CI.
 ## Issues
 
  * currently only Windows 11 Insider Preview is supported
+     * should work with other locales, but untested
+ * spice is not avaliable to macOS
  * ...still yet to describe how to use this image (ie. through WinRM and/or OpenSSH) for CI purposes.
  * find a way to disable Windows Defender from the CLI without a reboot
-     * this does *not* work as the 'Tamper Protection' needs to be done from meatspace:
+     * this does *not* work as the 'Tamper Protection' needs to be disabled from meatspace:
 
            powershell.exe -Command "Set-MpPreference -DisableRealTimeMonitoring $true"
 
@@ -30,7 +32,7 @@ You will need the following installed:
  * `m4`
  * `unzip`
 
-Before starting to build the image, you need to download the [Windows 11 Insider Preview ISO (Dev Channel, tested with build 25140)](https://www.microsoft.com/software-download/windowsinsiderpreviewiso) into the top of project directory.
+Before starting to build the image, you need to download the [Windows 11 Insider Preview ISO (Dev Channel, tested with build 25140, filename `Windows11_InsiderPreview_Client_x64_en-us_25140.iso`)](https://www.microsoft.com/software-download/windowsinsiderpreviewiso) into the top of project directory.
 
 Make sure you have at least 30 GiB of disk space to work with.
 
