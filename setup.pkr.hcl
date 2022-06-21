@@ -46,6 +46,7 @@ source "qemu" "main" {
   communicator = "winrm"
   winrm_username = var.username
   winrm_password = var.password
+  #winrm_timeout = 10m
   shutdown_command = "shutdown /s /t 10 /f /d p:4:1 /c \"Packer Shutdown\""
 
   format = "qcow2"
