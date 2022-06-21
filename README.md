@@ -12,9 +12,9 @@ Create suitable Microsoft Windows images for CI.
  * currently only Windows 11 Insider Preview is supported
      * should work with other locales, but untested
  * ...still yet to describe how to use this image (ie. through WinRM and/or OpenSSH) for CI purposes.
- * we assume if running on Linux, SPICE is avaliable
+ * we assume if running on Linux, SPICE is available
  * find a way to disable Windows Defender from the CLI without a reboot
-     * this does *not* work as the 'Tamper Protection' needs to be disabled from meatspace:
+     * this does *not* work as the 'Tamper Protection' needs to be disabled from meat space:
 
            powershell.exe -Command "Set-MpPreference -DisableRealTimeMonitoring $true"
 
@@ -92,7 +92,7 @@ Where:
 
 # Usage
 
-Once the image has built (typical build time is 30 minutes), the single output artifact is a qcow2 image located at `output-main/packer-main`.
+Once the image has built (typical build time is 30 minutes), the single output artefact is a qcow2 image located at `output-main/packer-main`.
 
 To start a VM using this image, run:
 
