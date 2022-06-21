@@ -11,7 +11,6 @@ Create suitable Microsoft Windows images for CI.
 
  * currently only Windows 11 Insider Preview is supported
      * should work with other locales, but untested
- * spice is not avaliable to macOS
  * ...still yet to describe how to use this image (ie. through WinRM and/or OpenSSH) for CI purposes.
  * find a way to disable Windows Defender from the CLI without a reboot
      * this does *not* work as the 'Tamper Protection' needs to be disabled from meatspace:
@@ -44,6 +43,7 @@ Create the image using:
 
 Where:
 
+ * **`IMAGE` (default: first glob match `Windows11_InsiderPreview_Client_x64_*.iso` in sorted descending order)**: ISO image to use
  * **`CORES` (default: `2`, must be more than 1):** number of CPUs to provide to the VM
  * **`RAM` (default: `4096`):** amount of RAM to provide to the VM in MiB
  * **`ACCEL` (default: suitable for your OS):** QEMU accelerator to use
