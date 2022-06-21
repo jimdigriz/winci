@@ -164,16 +164,16 @@
 				xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State">
 			<UserAccounts>
 				<AdministratorPassword>
-					<Value>password</Value>
+					<Value>PASSWORD</Value>
 					<PlainText>true</PlainText>
 				</AdministratorPassword>
 			</UserAccounts>
 			<AutoLogon>
-				<Username>Administrator</Username>
+				<Username>USERNAME</Username>
 				<Enabled>true</Enabled>
 				<LogonCount>1</LogonCount>
 				<Password>
-					<Value>password</Value>
+					<Value>PASSWORD</Value>
 					<PlainText>true</PlainText>
 				</Password>
 			</AutoLogon>

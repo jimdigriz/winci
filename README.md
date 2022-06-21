@@ -12,6 +12,7 @@ Create suitable Microsoft Windows images for CI.
  * currently only Windows 11 Insider Preview is supported
      * should work with other locales, but untested
  * ...still yet to describe how to use this image (ie. through WinRM and/or OpenSSH) for CI purposes.
+ * we assume if running on Linux, SPICE is avaliable
  * find a way to disable Windows Defender from the CLI without a reboot
      * this does *not* work as the 'Tamper Protection' needs to be disabled from meatspace:
 
@@ -24,7 +25,10 @@ Create suitable Microsoft Windows images for CI.
 You will need the following installed:
 
  * [QEMU (tested with 7.0.0)](https://www.qemu.org/)
- * [SPICE client](https://www.spice-space.org/)
+ * either:
+     * VNC client
+     * [SPICE client](https://www.spice-space.org/)
+         * though SPICE provides a nicer user experience, it is a lot of work to get SPICE working under macOS so it is recommended you stick with VNC
  * `curl`
  * GNU `make`
      * macOS users will need to run `gmake` where `make` is described instead
@@ -60,7 +64,17 @@ Where:
 
  * **`SPICE` (default: `5930`):** port to connect on
 
-Once the image has built (at least 30 minutes), you will be left with a qcow2 image at `output-main/packer-main`.
+If you wish to use VNC (for example if you are a macOS user) then you should look in the `packer` console output for:
+
+    ...
+    qemu.main: The VM will be run headless, without a GUI. If you want to
+    qemu.main: view the screen of the VM, connect via VNC without a password to
+    qemu.main: vnc://127.0.0.1:5909
+    ...
+
+Then point your VNC client at the `proto://host:port` it lists; the example here shows `vnc://127.0.0.1:5909`.
+
+Once the image has built (typical build time is 30 minutes), the single output artifact is a qcow2 image located at `output-main/packer-main`.
 
 To start a VM using this image, run:
 

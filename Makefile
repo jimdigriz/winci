@@ -39,6 +39,19 @@ endif
 RAM ?= 4096
 CORES ?= 2
 
+ifeq ($(KERNEL),linux)
+SPICE ?= 5930
+endif
+ifneq ($(SPICE),)
+SPICE ?= 0
+endif
+
+USERNAME ?= Administrator
+$(eval $(call BUILD_FLAGS_template,username,$(USERNAME)))
+
+PASSWORD ?= password
+$(eval $(call BUILD_FLAGS_template,password,$(PASSWORD)))
+
 OBJS = $(IMAGE) Autounattend.xml $(wildcard Autounattend/*)
 
 CLEAN =
@@ -80,8 +93,13 @@ OBJS += virtio-win.iso
 #CLEAN += Autounattend/sdelete64.exe
 #OBJS += Autounattend/sdelete64.exe
 
-%: %.m4
-	m4 -D VERSION=$(VERSION) -D LOCALE=$(LOCALE) -D COMMITID=$(word 1,$(subst -, ,$(COMMITID))) $< > $@
+Autounattend.xml: DEFINES += USERNAME=$(USERNAME)
+Autounattend.xml: DEFINES += PASSWORD=$(PASSWORD)
+Autounattend.xml: DEFINES += VERSION=$(VERSION)
+Autounattend.xml: DEFINES += LOCALE=$(LOCALE)
+Autounattend.xml: DEFINES += COMMITID=$(word 1,$(subst -, ,$(COMMITID)))
+Autounattend.xml: Autounattend.xml.m4
+	m4 $(foreach D,$(DEFINES),-D $(D)) $< > $@
 CLEAN += Autounattend.xml
 
 output-main/packer-main: PACKER_BUILD_FLAGS += -var iso_url='$(IMAGE)'
@@ -89,13 +107,21 @@ output-main/packer-main: PACKER_BUILD_FLAGS += -var iso_url_virtio=virtio-win.is
 output-main/packer-main: PACKER_BUILD_FLAGS += -var accel=$(ACCEL)
 output-main/packer-main: PACKER_BUILD_FLAGS += -var ram=$(RAM)
 output-main/packer-main: PACKER_BUILD_FLAGS += -var cores=$(CORES)
+ifneq ($(SPICE),0)
+output-main/packer-main: PACKER_BUILD_FLAGS += -var spice='[ [ "-device", "virtio-serial-pci" ], [ "-spice", "addr=127.0.0.1,port=$(SPICE),disable-ticketing=on" ], [ "-device", "virtserialport,chardev=spicechannel0,name=com.redhat.spice.0" ], [ "-chardev", "spicevmc,id=spicechannel0,name=vdagent" ] ]'
+endif
 output-main/packer-main: setup.pkr.hcl .stamp.packer $(OBJS) | notdirty
 	env TMPDIR=$(CURDIR) ./packer build -on-error=ask -only qemu.main $(PACKER_BUILD_FLAGS) $<
 	qemu-img snapshot -c initial $@
 CLEAN += output-main
 
 .PHONY: vm
-vm: SPICE ?= 5930
+vm: VNC ?= 0
+ifneq ($(SPICE),0)
+vm: SPICE_ARGS += -spice addr=127.0.0.1,port=$(SPICE),disable-ticketing=on
+vm: SPICE_ARGS += -device virtserialport,chardev=spicechannel0,name=com.redhat.spice.0
+vm: SPICE_ARGS += -chardev spicevmc,id=spicechannel0,name=vdagent
+endif
 vm: WINRM ?= 5985
 vm: output-main/packer-main
 	env TMPDIR='$(PWD)' qemu-system-x86_64 \
@@ -107,10 +133,8 @@ vm: output-main/packer-main
 		-serial none \
 		-parallel none \
 		-vga qxl \
-		-device virtio-serial-pci \
-		-spice addr=127.0.0.1,port=$(SPICE),disable-ticketing=on \
-		-device virtserialport,chardev=spicechannel0,name=com.redhat.spice.0 \
-		-chardev spicevmc,id=spicechannel0,name=vdagent \
+		-vnc 127.0.0.1:$(VNC) \
+		-device virtio-serial-pci $(SPICE_ARGS) \
 		-netdev user,id=user.0,hostfwd=tcp:127.0.0.1:$(WINRM)-:5985 \
 		-device virtio-net-pci,netdev=user.0 \
 		-device virtio-balloon \
@@ -124,7 +148,6 @@ vm: output-main/packer-main
 		-monitor stdio
 
 .PHONY: spice
-spice: SPICE ?= 5930
 spice:
 	spicy -h 127.0.0.1 -p $(SPICE)
 

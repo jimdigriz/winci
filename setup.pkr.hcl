@@ -22,17 +22,27 @@ variable "ram" {
   default = 4096
 }
 
+variable "spice" {
+  type = list(list(string))
+  default = []
+}
+
+variable "username" {
+  type = string
+  default = "Administrator"
+}
+variable "password" {
+  type = string
+  default = "password"
+}
+
 source "qemu" "main" {
   headless = true
-  disable_vnc = true
 
   communicator = "winrm"
-  winrm_username = "Administrator"
-  winrm_password = "password"
+  winrm_username = var.username
+  winrm_password = var.password
   shutdown_command = "shutdown /s /t 10 /f /d p:4:1 /c \"Packer Shutdown\""
-
-  firmware = "/usr/share/OVMF/OVMF_CODE.fd"
-  use_pflash = true
 
   format = "qcow2"
   disk_size = "40960M"
@@ -55,7 +65,7 @@ source "qemu" "main" {
     "Autounattend"
   ]
 
-  qemuargs = [
+  qemuargs = concat([
     [ "-machine", "q35,accel=${var.accel}" ],
     [ "-smp", "cpus=${var.cores}" ],
     [ "-cpu", "qemu64" ],
@@ -64,10 +74,6 @@ source "qemu" "main" {
     [ "-serial", "none" ],
     [ "-parallel", "none" ],
     [ "-vga", "qxl" ],
-     [ "-device", "virtio-serial-pci" ],
-     [ "-spice", "addr=127.0.0.1,port=5930,disable-ticketing=on" ],
-     [ "-device", "virtserialport,chardev=spicechannel0,name=com.redhat.spice.0" ],
-     [ "-chardev", "spicevmc,id=spicechannel0,name=vdagent" ],
     [ "-netdev", "user,id=user.0,hostfwd=tcp:127.0.0.1:{{ .SSHHostPort }}-:5985" ],
     [ "-device", "virtio-net-pci,netdev=user.0" ],
     [ "-device", "virtio-balloon" ],
@@ -81,7 +87,7 @@ source "qemu" "main" {
     [ "-device", "usb-tablet" ],
     [ "-device", "usb-kbd" ],
     [ "-boot", "once=d" ]
-  ]
+  ], var.spice)
  }
 
 build {
