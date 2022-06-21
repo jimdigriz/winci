@@ -39,7 +39,7 @@ Before starting to build the image, you need to download the [Windows 11 Insider
 
 Make sure you have at least 30 GiB of disk space to work with.
 
-# Usage
+# Building
 
 Create the image using:
 
@@ -53,16 +53,12 @@ Where:
  * **`ACCEL` (default: suitable for your OS):** QEMU accelerator to use
      * **Linux:** `kvm`
      * **macOS:** `hvf`
+ * **`SPICE` (default: on Linux `5930`, otherwise `0`):** port to connect on
+     * zero (`0`) forcible disables SPICE
 
 **N.B.** to see detailed debugging, set the environment variable `PACKER_LOG=1`
 
-Whilst the build runs, you can connect with:
-
-    make spice SPICE=5930
-
-Where:
-
- * **`SPICE` (default: `5930`):** port to connect on
+## Monitoring the Build
 
 If you wish to use VNC (for example if you are a macOS user) then you should look in the `packer` console output for:
 
@@ -72,18 +68,40 @@ If you wish to use VNC (for example if you are a macOS user) then you should loo
     qemu.main: vnc://127.0.0.1:5909
     ...
 
-Then point your VNC client at the `proto://host:port` it lists; the example here shows `vnc://127.0.0.1:5909`.
+Then point your VNC client at the `proto://host:port` it lists; the example here shows `vnc://127.0.0.1:5909` so you could connect with:
+
+    ssvncviewer 127.0.0.1:5909
+
+Or:
+
+    ssvncviewer :5909
+
+Or:
+
+    ssvncviewer :9
+
+### SPICE
+
+For a better and faster experience, you should use SPICE which you can connect with:
+
+    make spice SPICE=5930
+
+Where:
+
+ * **`SPICE` (default: `5930`):** port to connect on
+
+# Usage
 
 Once the image has built (typical build time is 30 minutes), the single output artifact is a qcow2 image located at `output-main/packer-main`.
 
 To start a VM using this image, run:
 
-    make vm CORES=2 RAM=4096 SPICE=5930
+    make vm CORES=2 RAM=4096 VNC=5900 SPICE=5930
 
 Points of interest:
 
  * you will be presented with the [QEMU monitor](https://qemu.readthedocs.io/en/latest/system/monitor.html)
- * you can access the VM via `make spice` as before
+ * you can access the VM via your VNC viewer or `make spice` as before
  * we use the image in 'snapshot' mode with means nothing is persisted back to the image
  * if you wish to persist your changes you should halt (*not* shutdown) your VM and run from the monitor console
 
