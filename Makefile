@@ -107,7 +107,10 @@ output-main/packer-main: PACKER_BUILD_FLAGS += -var iso_url_virtio=virtio-win.is
 output-main/packer-main: PACKER_BUILD_FLAGS += -var accel=$(ACCEL)
 output-main/packer-main: PACKER_BUILD_FLAGS += -var ram=$(RAM)
 output-main/packer-main: PACKER_BUILD_FLAGS += -var cores=$(CORES)
-ifneq ($(SPICE),0)
+ifeq ($(SPICE),0)
+output-main/packer-main: PACKER_BUILD_FLAGS += -var vga=virtio
+else
+output-main/packer-main: PACKER_BUILD_FLAGS += -var vga=qxl
 output-main/packer-main: PACKER_BUILD_FLAGS += -var spice='[ [ "-device", "virtio-serial-pci" ], [ "-spice", "addr=127.0.0.1,port=$(SPICE),disable-ticketing=on" ], [ "-device", "virtserialport,chardev=spicechannel0,name=com.redhat.spice.0" ], [ "-chardev", "spicevmc,id=spicechannel0,name=vdagent" ] ]'
 endif
 output-main/packer-main: setup.pkr.hcl .stamp.packer $(OBJS) | notdirty
@@ -117,7 +120,10 @@ CLEAN += output-main
 
 .PHONY: vm
 vm: VNC ?= 0
-ifneq ($(SPICE),0)
+ifeq ($(SPICE),0)
+vm: VGA ?= virtio
+else
+vm: VGA ?= qxl
 vm: SPICE_ARGS += -spice addr=127.0.0.1,port=$(SPICE),disable-ticketing=on
 vm: SPICE_ARGS += -device virtserialport,chardev=spicechannel0,name=com.redhat.spice.0
 vm: SPICE_ARGS += -chardev spicevmc,id=spicechannel0,name=vdagent
@@ -132,7 +138,7 @@ vm: output-main/packer-main
 		-nodefaults \
 		-serial none \
 		-parallel none \
-		-vga qxl \
+		-vga $(VGA) \
 		-vnc 127.0.0.1:$(VNC) \
 		-device virtio-serial-pci $(SPICE_ARGS) \
 		-netdev user,id=user.0,hostfwd=tcp:127.0.0.1:$(WINRM)-:5985 \

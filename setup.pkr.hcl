@@ -22,6 +22,10 @@ variable "ram" {
   default = 4096
 }
 
+variable "vga" {
+  type = string
+  default = "virtio"
+}
 variable "spice" {
   type = list(list(string))
   default = []
@@ -73,7 +77,7 @@ source "qemu" "main" {
     [ "-nodefaults" ],
     [ "-serial", "none" ],
     [ "-parallel", "none" ],
-    [ "-vga", "qxl" ],
+    [ "-vga", var.vga ],
     [ "-netdev", "user,id=user.0,hostfwd=tcp:127.0.0.1:{{ .SSHHostPort }}-:5985" ],
     [ "-device", "virtio-net-pci,netdev=user.0" ],
     [ "-device", "virtio-balloon" ],
