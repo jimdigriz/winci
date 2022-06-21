@@ -119,7 +119,7 @@ output-main/packer-main: setup.pkr.hcl .stamp.packer $(OBJS) | notdirty
 CLEAN += output-main
 
 .PHONY: vm
-vm: VNC ?= 0
+vm: VNC ?= 5900
 ifeq ($(SPICE),0)
 vm: VGA ?= virtio
 else
@@ -139,7 +139,7 @@ vm: output-main/packer-main
 		-serial none \
 		-parallel none \
 		-vga $(VGA) \
-		-vnc 127.0.0.1:$(VNC) \
+		-vnc 127.0.0.1:$(shell expr $(VNC) - 5900) \
 		-device virtio-serial-pci $(SPICE_ARGS) \
 		-netdev user,id=user.0,hostfwd=tcp:127.0.0.1:$(WINRM)-:5985 \
 		-device virtio-net-pci,netdev=user.0 \
