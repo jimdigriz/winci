@@ -25,6 +25,9 @@ Create suitable Microsoft Windows images for CI.
 You will need the following installed:
 
  * [QEMU (tested with 7.0.0)](https://www.qemu.org/)
+     * output of `qemu-system-x86_64 -accel help` must show (otherwise Windows will run *really* slowly)
+         * Linux: `kvm`
+         * macOS (Intel): `hvf`
  * either:
      * VNC client
      * [SPICE client](https://www.spice-space.org/)
