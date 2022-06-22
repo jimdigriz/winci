@@ -42,7 +42,7 @@ CORES ?= 2
 ifeq ($(KERNEL),linux)
 SPICE ?= 5930
 endif
-ifneq ($(SPICE),)
+ifeq ($(SPICE),)
 SPICE ?= 0
 endif
 
