@@ -137,6 +137,7 @@ vm: SPICE_ARGS += -chardev spicevmc,id=spicechannel0,name=vdagent
 endif
 vm: SSH ?= 2222
 vm: WINRM ?= 5985
+vm: RDP ?= 3389
 vm: output-main/packer-main
 	env TMPDIR='$(PWD)' qemu-system-x86_64 \
 		-machine q35,accel=$(ACCEL) \
@@ -149,7 +150,7 @@ vm: output-main/packer-main
 		-vga $(VGA) \
 		-vnc 127.0.0.1:$(shell expr $(VNC) - 5900) \
 		-device virtio-serial-pci $(SPICE_ARGS) \
-		-netdev user,id=user.0,hostfwd=tcp:127.0.0.1:$(SSH)-:22,hostfwd=tcp:127.0.0.1:$(WINRM)-:5985 \
+		-netdev user,id=user.0,hostfwd=tcp:127.0.0.1:$(SSH)-:22,hostfwd=tcp:127.0.0.1:$(WINRM)-:5985,hostfwd=tcp:127.0.0.1:$(RDP)-:3389 \
 		-device virtio-net-pci,netdev=user.0 \
 		-device virtio-balloon \
 		-device ahci,id=ahci \

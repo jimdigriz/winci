@@ -100,7 +100,7 @@ Once the image has built (typical build time is 30 minutes), the single output a
 
 To start a VM using this image, run:
 
-    make vm CORES=2 RAM=4096 VNC=5900 SSH=2222 SPICE=5930
+    make vm CORES=2 RAM=4096 VNC=5900 SSH=2222 SPICE=5930 RDP=3389
 
 Points of interest:
 
@@ -109,6 +109,7 @@ Points of interest:
      * Graphically
          * your VNC viewer (defaults to `:0` aka port `5900`, or if that is in use increments to the next free port)
          * `make spice` as before
+         * use an RDP (Remote Desktop) client pointing at `3389/tcp`
      * Terminal connect over `localhost` (bound to `127.0.0.1`) using `Administrator`/`password` as your credentials
          * WinRM to `5930/tcp`
          * SSH to `2222/tcp`
