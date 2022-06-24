@@ -100,8 +100,7 @@ Once the image has built (typical build time is 30 minutes), the single output a
 
 To start a VM using this image, run:
 
-    make vm CORES=2 RAM=4096 VNC=5900 SSH=2222 SPICE=5930 RDP=3389
-
+    make vm CORES=2 RAM=4096 VNC=5900 SSH=2222 SPICE=5930 WINRM=5985 RDP=3389
 Points of interest:
 
  * you will be presented with the [QEMU monitor](https://qemu.readthedocs.io/en/latest/system/monitor.html)
