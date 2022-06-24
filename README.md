@@ -122,3 +122,7 @@ Points of interest:
  * image has an snapshot called 'initial' which provides you with a point to restore to using
 
        qemu-img snapshot -a initial output-main/packer-main
+
+## Examples
+
+ * [802.1X](./examples/dot1x/README.md)
