@@ -83,6 +83,13 @@ virtio-win.iso:
 DISTCLEAN += virtio-win.iso
 OBJS += virtio-win.iso
 
+# see setup.bat
+OpenSSH-Win64.msi: URI ?= https://github.com/PowerShell/Win32-OpenSSH/releases/download/v8.9.1.0p1-Beta/OpenSSH-Win64-v8.9.1.0.msi
+OpenSSH-Win64.msi:
+	$(call CURL,$(URI),$@)
+DISTCLEAN += OpenSSH-Win64.msi
+OBJS += OpenSSH-Win64.msi
+
 # see setup.bat for reason why this is commented out
 #SDelete.zip:
 #	$(call CURL,https://download.sysinternals.com/files/SDelete.zip,$@)
@@ -128,6 +135,7 @@ vm: SPICE_ARGS += -spice addr=127.0.0.1,port=$(SPICE),disable-ticketing=on
 vm: SPICE_ARGS += -device virtserialport,chardev=spicechannel0,name=com.redhat.spice.0
 vm: SPICE_ARGS += -chardev spicevmc,id=spicechannel0,name=vdagent
 endif
+vm: SSH ?= 2222
 vm: WINRM ?= 5985
 vm: output-main/packer-main
 	env TMPDIR='$(PWD)' qemu-system-x86_64 \
@@ -141,7 +149,7 @@ vm: output-main/packer-main
 		-vga $(VGA) \
 		-vnc 127.0.0.1:$(shell expr $(VNC) - 5900) \
 		-device virtio-serial-pci $(SPICE_ARGS) \
-		-netdev user,id=user.0,hostfwd=tcp:127.0.0.1:$(WINRM)-:5985 \
+		-netdev user,id=user.0,hostfwd=tcp:127.0.0.1:$(SSH)-:22,hostfwd=tcp:127.0.0.1:$(WINRM)-:5985 \
 		-device virtio-net-pci,netdev=user.0 \
 		-device virtio-balloon \
 		-device ahci,id=ahci \

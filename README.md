@@ -100,14 +100,18 @@ Once the image has built (typical build time is 30 minutes), the single output a
 
 To start a VM using this image, run:
 
-    make vm CORES=2 RAM=4096 VNC=5900 SPICE=5930
+    make vm CORES=2 RAM=4096 VNC=5900 SSH=2222 SPICE=5930
 
 Points of interest:
 
  * you will be presented with the [QEMU monitor](https://qemu.readthedocs.io/en/latest/system/monitor.html)
  * you can access the VM either using
-     * your VNC viewer (defaults to `:0` aka port `5900`, or if that is in use increments to the next free port)
-     * `make spice` as before
+     * Graphically
+         * your VNC viewer (defaults to `:0` aka port `5900`, or if that is in use increments to the next free port)
+         * `make spice` as before
+     * Terminal connect over `localhost` (bound to `127.0.0.1`) using `Administrator`/`password` as your credentials
+         * WinRM to `5930/tcp`
+         * SSH to `2222/tcp`
  * we use the image in 'snapshot' mode with means nothing is persisted back to the image
  * if you wish to persist your changes you should halt (*not* shutdown) your VM and run from the monitor console
 

@@ -4,8 +4,11 @@
 packer*
 
 *.iso
+*.msi
+*.exe
+*.zip
 
 Autounattend.xml
 
-SDelete.zip
 Autounattend/sdelete64.exe
+Autounattend/OpenSSH-Win64.msi

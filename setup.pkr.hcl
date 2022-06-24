@@ -98,6 +98,12 @@ source "qemu" "main" {
 build {
   sources = ["source.qemu.main"]
 
+  # setup.bat details why we do this here
+  provisioner "file" {
+    source = "OpenSSH-Win64.msi"
+    destination = "C:/Windows/Temp/OpenSSH-Win64.msi"
+  }
+
   # we push everything into a script as it is faster than a provisioner
   provisioner "windows-shell" {
     script = "setup.bat"
