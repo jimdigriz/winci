@@ -124,4 +124,4 @@ Points of interest:
 
 ## Examples
 
- * [802.1X](./examples/dot1x/README.md)
+ * [802.1X](./examples/dot1x/)
