@@ -15,7 +15,7 @@ RUN apt-get update \
 	&& apt-get clean \
 	&& find /var/lib/apt/lists -type f -delete
 
-RUN sed -ei 's/^\(\[supervisord\]\)$/\1\nnodaemon=true/' /etc/supervisor/supervisord.conf
+RUN sed -i -e 's/^\(\[supervisord\]\)$/\1\nnodaemon=true/' /etc/supervisor/supervisord.conf
 ADD supervisor.conf.d/ /etc/supervisor/conf.d/
 ADD hostapd.conf.m4 /etc/hostapd/hostapd.conf.m4
 
