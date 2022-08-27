@@ -13,3 +13,9 @@ Autounattend.xml
 
 Autounattend/sdelete64.exe
 Autounattend/OpenSSH-Win64.msi
+
+*.qcow2
+
+*.der
+*.p12
+Ethernet.xml
