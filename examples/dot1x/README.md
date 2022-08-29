@@ -19,6 +19,7 @@ In one terminal, set up and run your FreeRADIUS server:
     docker build -t freeradius freeradius-server/scripts/docker/debian11
     docker run -it --rm \
             --name freeradius \
+            --cap-add=SYS_PTRACE \
             -v "$PWD/examples/dot1x/freeradius/clients.conf:/etc/freeradius/clients.conf" \
             -v "$PWD/examples/dot1x/freeradius/mods-config/files/authorize:/etc/freeradius/mods-config/files/authorize" \
         freeradius -X
