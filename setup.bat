@@ -14,6 +14,7 @@ reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" /v NoAutoUpd
 @rem powershell.exe -Command "Set-Service -Name sshd -StartupType Automatic"
 @rem powershell.exe -Command "if (!(Get-NetFirewallRule -Name 'OpenSSH-Server-In-TCP' -ErrorAction SilentlyContinue | Select-Object Name, Enabled)) { New-NetFirewallRule -Name 'OpenSSH-Server-In-TCP' -DisplayName 'OpenSSH Server (sshd)' -Enabled True -Direction Inbound -Protocol TCP -Action Allow -LocalPort 22 }"
 @rem https://github.com/PowerShell/Win32-OpenSSH/wiki/Install-Win32-OpenSSH-Using-MSI
+curl -f -o C:\\Windows\\Temp\\OpenSSH-Win64.msi http://%PACKER_HTTP_ADDR%/OpenSSH-Win64.msi
 msiexec.exe /i C:\Windows\Temp\OpenSSH-Win64.msi
 del C:\Windows\Temp\OpenSSH-Win64.msi
 

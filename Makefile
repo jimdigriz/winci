@@ -3,7 +3,7 @@ SHELL = /bin/sh
 
 COMMITID = $(shell git rev-parse --short HEAD | tr -d '\n')$(shell git diff-files --quiet || printf -- -dirty)
 
-PACKER_VERSION = 1.8.2
+PACKER_VERSION = 1.8.3
 
 define BUILD_FLAGS_template =
 PACKER_BUILD_FLAGS += -var $(1)=$(2)
@@ -17,9 +17,6 @@ MACHINE = amd64
 endif
 
 CURL = curl -fRL --compressed -C - --retry 3 -o $(2) $(3) $(1)
-
-# https://github.com/virtio-win/virtio-win-guest-tools-installer/issues/33
-VIRTIO_URL ?= https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/archive-virtio/virtio-win-0.1.215-2/virtio-win.iso
 
 VIRTIO_URL ?= https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/stable-virtio/virtio-win.iso
 IMAGE ?= $(lastword $(sort $(wildcard Windows11_InsiderPreview_Client_x64_*.iso)))
@@ -55,7 +52,7 @@ $(eval $(call BUILD_FLAGS_template,password,$(PASSWORD)))
 OBJS = $(IMAGE) Autounattend.xml $(wildcard Autounattend/*)
 
 CLEAN =
-DISTCLEAN =
+DISTCLEAN = assets
 
 .PHONY: all
 all: output-main/packer-main
@@ -84,21 +81,21 @@ DISTCLEAN += virtio-win.iso
 OBJS += virtio-win.iso
 
 # see setup.bat
-OpenSSH-Win64.msi: URI ?= https://github.com/PowerShell/Win32-OpenSSH/releases/download/v8.9.1.0p1-Beta/OpenSSH-Win64-v8.9.1.0.msi
-OpenSSH-Win64.msi:
+assets/OpenSSH-Win64.msi: URI ?= https://github.com/PowerShell/Win32-OpenSSH/releases/download/v8.9.1.0p1-Beta/OpenSSH-Win64-v8.9.1.0.msi
+assets/OpenSSH-Win64.msi:
+	@mkdir -p $(@D)
 	$(call CURL,$(URI),$@)
-DISTCLEAN += OpenSSH-Win64.msi
-OBJS += OpenSSH-Win64.msi
+OBJS += assets/OpenSSH-Win64.msi
 
 # see setup.bat for reason why this is commented out
 #SDelete.zip:
 #	$(call CURL,https://download.sysinternals.com/files/SDelete.zip,$@)
 #DISTCLEAN += SDelete.zip
 #
-#Autounattend/sdelete64.exe: SDelete.zip
+#assets/sdelete64.exe: SDelete.zip
 #	unzip -oDD -d $(@D) $< $(@F)
-#CLEAN += Autounattend/sdelete64.exe
-#OBJS += Autounattend/sdelete64.exe
+#CLEAN += assets/sdelete64.exe
+#OBJS += assets/sdelete64.exe
 
 Autounattend.xml: DEFINES += USERNAME=$(USERNAME)
 Autounattend.xml: DEFINES += PASSWORD=$(PASSWORD)

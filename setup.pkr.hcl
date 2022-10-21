@@ -93,16 +93,14 @@ source "qemu" "main" {
     [ "-device", "usb-kbd" ],
     [ "-boot", "once=d" ]
   ], var.spice)
- }
+
+  # https://github.com/hashicorp/packer/issues/2648
+  # unable to figure out how to serve binary files with http_content
+  http_directory = "assets"
+}
 
 build {
   sources = ["source.qemu.main"]
-
-  # setup.bat details why we do this here
-  provisioner "file" {
-    source = "OpenSSH-Win64.msi"
-    destination = "C:/Windows/Temp/OpenSSH-Win64.msi"
-  }
 
   # we push everything into a script as it is faster than a provisioner
   provisioner "windows-shell" {
