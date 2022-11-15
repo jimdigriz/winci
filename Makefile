@@ -3,7 +3,7 @@ SHELL = /bin/sh
 
 COMMITID = $(shell git rev-parse --short HEAD | tr -d '\n')$(shell git diff-files --quiet || printf -- -dirty)
 
-PACKER_VERSION = 1.8.3
+PACKER_VERSION = 1.8.4
 
 define BUILD_FLAGS_template =
 PACKER_BUILD_FLAGS += -var $(1)=$(2)
