@@ -117,7 +117,7 @@
 					<InstallFrom>
 						<MetaData wcm:action="add">
 							<Key>/IMAGE/Description</Key>
-							<Value>Windows 11 Pro</Value>
+							<Value>Windows WINVER Pro</Value>
 						</MetaData>
 					</InstallFrom>
 					<InstallTo>

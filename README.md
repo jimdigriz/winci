@@ -9,8 +9,10 @@ Create suitable Microsoft Windows images for CI.
 
 ## Issues
 
- * currently only Windows 11 Insider Preview is supported
-     * should work with other locales, but untested
+ * currently only tested with
+     * [Windows 11 Insider Preview](https://www.microsoft.com/software-download/windowsinsiderpreviewiso)
+     * [Windows 10](https://www.microsoft.com/software-download/windows10ISO)
+     * should work with locales other than en-us, but untested
  * ...still yet to describe how to use this image (ie. through WinRM and/or OpenSSH) for CI purposes.
  * we assume if running on Linux, SPICE is available
  * find a way to disable Windows Defender from the CLI without a reboot
@@ -39,7 +41,7 @@ You will need the following installed:
  * `m4`
  * `unzip`
 
-Before starting to build the image, you need to download the [Windows 11 Insider Preview ISO (Dev Channel, tested with build 25227, filename `Windows11_InsiderPreview_Client_x64_en-us_25227.iso`)](https://www.microsoft.com/software-download/windowsinsiderpreviewiso) into the top of project directory.
+Before starting to build the image, you need to download either a [Windows 11 Insider Preview ISO (tested with Dev Channel, tested with build 25227, filename `Windows11_InsiderPreview_Client_x64_en-us_25227.iso`)](https://www.microsoft.com/software-download/windowsinsiderpreviewiso) or [Windows 10 ISO (tested with 22H2, filename `Win10_22H2_English_x64.iso`)](https://www.microsoft.com/software-download/windows10ISO) into the top of project directory.
 
 Make sure you have at least 30 GiB of disk space to work with.
 
@@ -51,7 +53,8 @@ Create the image using:
 
 Where:
 
- * **`IMAGE` (default: first glob match `Windows11_InsiderPreview_Client_x64_*.iso` in sorted descending order):** ISO image to use
+ * **`IMAGE` (default: first glob match `Windows11_InsiderPreview_Client_x64_*.iso` and `Win10_*.iso` in sorted descending order):** ISO image to use
+     * examples are `Windows11_InsiderPreview_Client_x64_en-us_25227.iso` and `Win10_22H2_English_x64.iso`
  * **`CORES` (default: `2`, must be more than 1):** number of CPUs to provide to the VM
  * **`RAM` (default: `4096`):** amount of RAM to provide to the VM in MiB
  * **`ACCEL` (default: suitable for your OS):** QEMU accelerator to use

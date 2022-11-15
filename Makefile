@@ -21,10 +21,18 @@ CURL = curl -fRL --compressed -C - --retry 3 -o $(2) $(3) $(1)
 VIRTIO_URL ?= https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/stable-virtio/virtio-win.iso
 IMAGE ?= $(lastword $(sort $(wildcard Windows11_InsiderPreview_Client_x64_*.iso)))
 ifeq ($(IMAGE),)
-$(error download an ISO from https://www.microsoft.com/software-download/windowsinsiderpreviewiso)
+IMAGE ?= $(lastword $(sort $(wildcard Windows11_InsiderPreview_Client_x64_*.iso)))
 endif
+ifeq ($(IMAGE),)
+$(error download an ISO from https://www.microsoft.com/software-download/windowsinsiderpreviewiso or https://www.microsoft.com/software-download/windows10ISO)
+endif
+ifeq ($(findstring Win10,$(IMAGE)),)
 VERSION ?= $(word 6,$(subst _, ,$(basename $(IMAGE))))
 LOCALE ?= $(word 5,$(subst _, ,$(basename $(IMAGE))))
+else
+VERSION ?= $(word 2,$(subst _, ,$(basename $(IMAGE))))
+LOCALE ?= en-us
+endif
 
 ifeq ($(KERNEL),linux)
 ACCEL ?= kvm:tcg
@@ -102,6 +110,11 @@ Autounattend.xml: DEFINES += PASSWORD=$(PASSWORD)
 Autounattend.xml: DEFINES += VERSION=$(VERSION)
 Autounattend.xml: DEFINES += LOCALE=$(LOCALE)
 Autounattend.xml: DEFINES += COMMITID=$(word 1,$(subst -, ,$(COMMITID)))
+ifeq ($(findstring Win10,$(IMAGE)),)
+Autounattend.xml: DEFINES += WINVER=11
+else
+Autounattend.xml: DEFINES += WINVER=10
+endif
 Autounattend.xml: Autounattend.xml.m4
 	m4 $(foreach D,$(DEFINES),-D $(D)) $< > $@
 CLEAN += Autounattend.xml
