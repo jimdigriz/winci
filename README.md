@@ -1,5 +1,7 @@
 Create suitable Microsoft Windows images for CI.
 
+This work was sponsored by [NetworkRADIUS](https://networkradius.com/).
+
 ## Related Links
 
  * [packer](https://www.packer.io/docs)
