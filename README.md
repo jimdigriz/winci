@@ -12,7 +12,8 @@ This work was sponsored by [NetworkRADIUS](https://networkradius.com/).
 ## Issues
 
  * currently only tested with
-     * [Windows 11 Insider Preview](https://www.microsoft.com/software-download/windowsinsiderpreviewiso)
+     * [Windows 11](https://www.microsoft.com/en-gb/software-download/windows11/)
+        * [Windows 11 Insider Preview](https://www.microsoft.com/software-download/windowsinsiderpreviewiso)
      * [Windows 10](https://www.microsoft.com/software-download/windows10ISO)
      * should work with locales other than en-us, but untested
  * ...still yet to describe how to use this image (ie. through WinRM and/or OpenSSH) for CI purposes.
@@ -55,8 +56,8 @@ Create the image using:
 
 Where:
 
- * **`IMAGE` (default: first glob match `Windows11_InsiderPreview_Client_x64_*.iso` and `Win10_*.iso` in sorted descending order):** ISO image to use
-     * examples are `Windows11_InsiderPreview_Client_x64_en-us_25227.iso` and `Win10_22H2_English_x64.iso`
+ * **`IMAGE` (default: first glob match `Windows11_*_x64*.iso`, `Win11_*_x64*.iso` and `Win10_*.iso` in sorted descending order):** ISO image to use
+     * examples are `Win11_22H2_EnglishInternational_x64v2.iso`, `Windows11_InsiderPreview_Client_x64_en-us_25227.iso` and `Win10_22H2_English_x64.iso`
  * **`CORES` (default: `2`, must be more than 1):** number of CPUs to provide to the VM
  * **`RAM` (default: `4096`):** amount of RAM to provide to the VM in MiB
  * **`ACCEL` (default: suitable for your OS):** QEMU accelerator to use

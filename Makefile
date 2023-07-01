@@ -19,10 +19,7 @@ endif
 CURL = curl -fRL --compressed -C - --retry 3 -o $(2) $(3) $(1)
 
 VIRTIO_URL ?= https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/stable-virtio/virtio-win.iso
-IMAGE ?= $(lastword $(sort $(wildcard Windows11_InsiderPreview_Client_x64_*.iso)))
-ifeq ($(IMAGE),)
-IMAGE ?= $(lastword $(sort $(wildcard Windows11_InsiderPreview_Client_x64_*.iso)))
-endif
+IMAGE ?= $(lastword $(sort $(wildcard Win11_*_x64*.iso Windows11_*_x64*.iso)))
 ifeq ($(IMAGE),)
 $(error download an ISO from https://www.microsoft.com/software-download/windowsinsiderpreviewiso or https://www.microsoft.com/software-download/windows10ISO)
 endif
