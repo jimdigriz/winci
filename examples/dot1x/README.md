@@ -14,14 +14,13 @@ The container runs `hostapd` alongside `qemu`, listing on the second network net
 
 In one terminal, set up and run your FreeRADIUS server:
 
-    git clone https://github.com/FreeRADIUS/freeradius-server.git
-    git -C freeradius-server checkout v3.2.x
+    git clone --single-branch --depth 1 -b v3.2.x https://github.com/FreeRADIUS/freeradius-server.git
     docker build -t freeradius freeradius-server/scripts/docker/debian11
     docker run -it --rm \
             --name freeradius \
             --cap-add=SYS_PTRACE \
-            -v "$PWD/examples/dot1x/freeradius/clients.conf:/etc/freeradius/clients.conf" \
-            -v "$PWD/examples/dot1x/freeradius/mods-config/files/authorize:/etc/freeradius/mods-config/files/authorize" \
+            -v "$PWD/examples/dot1x/freeradius/clients.conf:/etc/freeradius/clients.conf:ro" \
+            -v "$PWD/examples/dot1x/freeradius/mods-config/files/authorize:/etc/freeradius/mods-config/files/authorize:ro" \
         freeradius -X
 
 In another terminal start the testing environment (with your built image `packer/output` accessible at `/path/to/img.qcow2`):
