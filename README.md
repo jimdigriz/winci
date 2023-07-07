@@ -118,6 +118,7 @@ Points of interest:
      * Terminal connect over `localhost` (bound to `127.0.0.1`) using `Administrator`/`password` as your credentials
          * WinRM to `5930/tcp`
          * SSH to `2222/tcp`
+            * if SCP does not work for you, try including the `-O` parameter to [use the legacy SCP protocol which seems to work](https://github.com/PowerShell/Win32-OpenSSH/issues/1945#issuecomment-1311251741)
  * we use the image in 'snapshot' mode with means nothing is persisted back to the image
  * if you wish to persist your changes you should halt (*not* shutdown) your VM and run from the monitor console
 
