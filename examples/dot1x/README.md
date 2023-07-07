@@ -5,6 +5,7 @@ The container runs `hostapd` alongside `qemu`, listing on the second network net
 ## Related Links
 
  * [Windows 11 802.1X bugs and workarounds](https://github.com/corememltd/interop-eap-tls13#eap-ttls-and-peap)
+ * [Windows EAP Tracing (and Debugging)](https://gist.github.com/jimdigriz/327ef6afa808a1b291d12d68857dec05)
 
 # Build
 
