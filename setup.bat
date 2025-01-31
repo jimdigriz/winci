@@ -4,6 +4,13 @@ reg add "HKLM\SYSTEM\CurrentControlSet\Control\TimeZoneInformation" /v RealTimeI
 E:\virtio-win-gt-x64.msi /quiet /passive /norestart
 E:\virtio-win-guest-tools.exe /quiet /passive /norestart
 
+@rem allow 64bit (and 32bit) PowerShell remote execution
+powershell.exe -Command "Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Force"
+C:\Windows\SysWOW64\cmd.exe /c powershell.exe -Command "Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Force"
+
+@rem disable network discovery prompt
+cmd.exe /c reg add "HKLM\System\CurrentControlSet\Control\Network\NewNetworkWindowOff"
+
 @rem https://docs.microsoft.com/en-US/windows/deployment/update/waas-wu-settings#configuring-automatic-updates-by-editing-the-registry
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" /v NoAutoUpdate /t REG_DWORD /d 1 /f
 
@@ -43,3 +50,8 @@ powershell.exe -Command "Optimize-Volume -Verbose -DriveLetter C -Defrag -Normal
 @rem https://docs.microsoft.com/en-us/sysinternals/downloads/sdelete
 @rem reg add "HKCU\Software\Sysinternals\SDelete" /v EulaAccepted /t REG_DWORD /d 1 /f
 @rem A:\Autounattend\sdelete64.exe -nobanner -z C:
+
+@rem DISABLED
+@rem disable Windows Defender
+@rem https://x.com/jonasLyk/status/1293815234805760000
+@rem mklink "C:\ProgramData\Microsoft\Windows Defender:omgwtfbbq" "\??\NUL"

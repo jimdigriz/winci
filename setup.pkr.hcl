@@ -1,8 +1,8 @@
-variable "iso_url" {
+variable "iso" {
   type = string
 }
 
-variable "iso_url_virtio" {
+variable "iso_virtio" {
   type = string
   default = "virtio-win.iso"
 }
@@ -26,9 +26,10 @@ variable "vga" {
   type = string
   default = "virtio"
 }
+
 variable "spice" {
-  type = list(list(string))
-  default = []
+  type = string
+  default = null
 }
 
 variable "username" {
@@ -40,13 +41,23 @@ variable "password" {
   default = "password"
 }
 
+packer {
+  required_plugins {
+    qemu = {
+      version = "~> 1"
+      source  = "github.com/hashicorp/qemu"
+    }
+  }
+}
+
 source "qemu" "main" {
   headless = true
 
   communicator = "winrm"
+  skip_nat_mapping = true
   winrm_username = var.username
   winrm_password = var.password
-  #winrm_timeout = "10m"
+  #winrm_timeout = "30m"
   shutdown_command = "shutdown /s /t 10 /f /d p:4:1 /c \"Packer Shutdown\""
 
   format = "qcow2"
@@ -55,9 +66,9 @@ source "qemu" "main" {
   # we would prefer to do this ourselves to see a progress bar, but packer (1.8.1) ignores this option and eats stdout
   #skip_compaction = true
   qemu_img_args {
-    create = [ "-o", "lazy_refcounts=on,preallocation=metadata" ]
+    create = [ "-o", "lazy_refcounts=on" ]
     # using one coroutine is 2x faster than any higher value (compression?)
-    convert = [ "-o", "lazy_refcounts=on", "-m", "1" ]
+    convert = [ "-o", "lazy_refcounts=on", "-o", "compression_type=zstd" ]
   }
 
   iso_url = "/dev/null"
@@ -72,27 +83,36 @@ source "qemu" "main" {
 
   qemuargs = concat([
     [ "-machine", "q35,accel=${var.accel}" ],
+    [ "-cpu", "qemu64,+ssse3,+sse4.1,+sse4.2" ],
     [ "-smp", "cpus=${var.cores}" ],
-    [ "-cpu", "qemu64" ],
-    [ "-m", "${var.ram}" ],
+    [ "-m", var.ram ],
     [ "-nodefaults" ],
     [ "-serial", "none" ],
     [ "-parallel", "none" ],
     [ "-vga", var.vga ],
+    [ "-device", "virtio-serial-pci" ],
     [ "-netdev", "user,id=user.0,hostfwd=tcp:127.0.0.1:{{ .SSHHostPort }}-:5985" ],
     [ "-device", "virtio-net-pci,netdev=user.0" ],
     [ "-device", "virtio-balloon" ],
+    # https://wiki.qemu.org/Features/VirtIORNG
+    [ "-device", "virtio-rng-pci,max-bytes=1024,period=1000" ],
     [ "-device", "ahci,id=ahci" ],
-    [ "-drive", "if=virtio,file=output-main/packer-main,discard=unmap,detect-zeroes=unmap,format=qcow2,cache=unsafe" ],
-    [ "-drive", "if=none,id=cdrom0,media=cdrom,file=${var.iso_url},readonly=on" ],
+    [ "-drive", "if=virtio,file=output/packer-main,discard=unmap,detect-zeroes=unmap,format=qcow2,cache=unsafe" ],
+    [ "-drive", "if=none,id=cdrom0,media=cdrom,file=${var.iso},readonly=on" ],
     [ "-device", "ide-cd,drive=cdrom0,bus=ahci.1" ],
-    [ "-drive", "if=none,id=cdrom1,media=cdrom,file=${var.iso_url_virtio},readonly=on" ],
+    [ "-drive", "if=none,id=cdrom1,media=cdrom,file=${var.iso_virtio},readonly=on" ],
     [ "-device", "ide-cd,drive=cdrom1,bus=ahci.2" ],
     [ "-device", "qemu-xhci" ],
     [ "-device", "usb-tablet" ],
     [ "-device", "usb-kbd" ],
     [ "-boot", "once=d" ]
-  ], var.spice)
+  ], var.spice == null ? [] : [
+    [ "-spice", "unix=on,addr=${var.spice},disable-ticketing=on" ],
+    [ "-device", "virtserialport,chardev=spicechannel0,name=com.redhat.spice.0" ],
+    [ "-chardev", "spicevmc,id=spicechannel0,name=vdagent" ]
+  ])
+
+  output_directory = "output"
 
   # https://github.com/hashicorp/packer/issues/2648
   # unable to figure out how to serve binary files with http_content

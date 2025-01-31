@@ -1,35 +1,23 @@
 Create suitable Microsoft Windows images for CI.
 
-This work was sponsored by [NetworkRADIUS](https://networkradius.com/).
-
-## Related Links
-
- * [packer](https://www.packer.io/docs)
-     * [Windows Templates for Packer](https://github.com/StefanScherer/packer-windows)
- * [Answer files](https://docs.microsoft.com/windows-hardware/manufacture/desktop/update-windows-settings-and-scripts-create-your-own-answer-file-sxs)
-     * [Unattended Windows Setup Reference](https://docs.microsoft.com/windows-hardware/customize/desktop/unattend/)
+This work was sponsored by [InkBridge Networks](https://inkbridgenetworks.com/).
 
 ## Issues
 
- * currently only tested with
-     * [Windows 11](https://www.microsoft.com/en-gb/software-download/windows11/)
-        * [Windows 11 Insider Preview](https://www.microsoft.com/software-download/windowsinsiderpreviewiso)
-     * [Windows 10](https://www.microsoft.com/software-download/windows10ISO)
-     * should work with locales other than en-us, but untested
  * ...still yet to describe how to use this image (ie. through WinRM and/or OpenSSH) for CI purposes.
- * we assume if running on Linux, SPICE is available
  * find a way to disable Windows Defender from the CLI without a reboot
      * this does *not* work as the 'Tamper Protection' needs to be disabled from meat space:
 
            powershell.exe -Command "Set-MpPreference -DisableRealTimeMonitoring $true"
 
      * [...one interesting approach](https://github.com/mandiant/commando-vm/issues/136#issuecomment-674270169)
+     * [...and another](https://x.com/jonasLyk/status/1293815234805760000)
 
 # Preflight
 
 You will need the following installed:
 
- * [QEMU (tested with 7.0.0)](https://www.qemu.org/)
+ * [QEMU (tested with 7.2)](https://www.qemu.org/)
      * output of `qemu-system-x86_64 -accel help` must list
          * Linux: `kvm`
          * macOS (Intel): `hvf`
@@ -38,13 +26,22 @@ You will need the following installed:
      * VNC client
      * [SPICE client](https://www.spice-space.org/)
          * though SPICE provides a nicer user experience, it is a lot of work to get SPICE working under macOS so it is recommended you stick with VNC
- * `curl`
- * GNU `make`
-     * macOS users will need to run `gmake` where `make` is described instead
  * `m4`
- * `unzip`
 
-Before starting to build the image, you need to download either a [Windows 11 Insider Preview ISO (tested with Dev Channel, tested with build 25227, filename `Windows11_InsiderPreview_Client_x64_en-us_25227.iso`)](https://www.microsoft.com/software-download/windowsinsiderpreviewiso) or [Windows 10 ISO (tested with 22H2, filename `Win10_22H2_English_x64.iso`)](https://www.microsoft.com/software-download/windows10ISO) into the top of project directory.
+You will also require the following assets:
+
+ * [Packer](https://developer.hashicorp.com/packer) installed (linked from above) and available in your local path
+    * tested with version 1.12.0
+ * placed at the top of the project directory, either a [Windows 10 or 11](https://www.microsoft.com/en-gb/software-download) or [Insider Preview](https://www.microsoft.com/en-us/software-download/windowsinsiderpreviewiso) ISO
+    * tested with:
+       * Windows 11: `Win11_24H2_EnglishInternational_x64.iso` and `Windows11_InsiderPreview_Client_x64_en-gb_26100.1150.iso`
+       * Windows 10: `Win10_22H2_EnglishInternational_x64v1.iso` and `Windows10_InsiderPreview_Client_x64_en-gb_19045.1826.iso`
+ * [Windows VirtIO Drivers ('stable' recommended) ISO](https://github.com/virtio-win/virtio-win-pkg-scripts) download page
+    * tested with version 0.1.240
+    * [versions later than 0.1.240 (confirmed also with 0.1.266) seem not to work](https://github.com/virtio-win/virtio-win-guest-tools-installer/issues/64)
+       * version 0.1.266: drivers install but running either virtio-win-gt-x64 or virtio-win-guest-tools just stalls
+ * [Win32-OpenSSH](https://github.com/PowerShell/Win32-OpenSSH) 64bit MSI
+    * tested with version v9.8.1.0p1-Preview (`OpenSSH-Win64-v9.8.1.0.msi`)
 
 Make sure you have at least 30 GiB of disk space to work with.
 
@@ -52,19 +49,21 @@ Make sure you have at least 30 GiB of disk space to work with.
 
 Create the image using:
 
-    make CORES=2 RAM=4096
+    rm -rf output
+    env IMAGE=...CORES=2 RAM=4096 sh build.sh
 
 Where:
 
- * **`IMAGE` (default: first glob match `Windows11_*_x64*.iso`, `Win11_*_x64*.iso` and `Win10_*.iso` in sorted descending order):** ISO image to use
-     * examples are `Win11_22H2_EnglishInternational_x64v2.iso`, `Windows11_InsiderPreview_Client_x64_en-us_25227.iso` and `Win10_22H2_English_x64.iso`
+ * **`IMAGE` (required):** ISO image to use
+     * examples are `Win11_24H2_EnglishInternational_x64.iso`, `Windows11_InsiderPreview_Client_x64_en-gb_26100.1150.iso`
+ * **`VIRTIO` (default `virtio-win.iso`):** VirtIO driver ISO image to use
  * **`CORES` (default: `2`, must be more than 1):** number of CPUs to provide to the VM
  * **`RAM` (default: `4096`):** amount of RAM to provide to the VM in MiB
  * **`ACCEL` (default: suitable for your OS):** QEMU accelerator to use
-     * **Linux:** `kvm`
-     * **macOS:** `hvf`
- * **`SPICE` (default: on Linux `5930`, otherwise `0`):** port to connect on
-     * zero (`0`) forcible disables SPICE
+     * **Linux:** `kvm:tcg`
+     * **macOS:** `hvf:tcg`
+ * **`PASSWORD` (default: `password`):** password for `Administrator` account
+ * **`SPICE` (default: disabled):** enable spice on UNIX socket name such as `spice.sock`
 
 **N.B.** to see detailed debugging, set the environment variable `PACKER_LOG=1`
 
@@ -94,15 +93,15 @@ Or:
 
 For a better and faster experience, you should use SPICE which you can connect with:
 
-    make spice SPICE=5930
+    remote-viewer spice+unix://spice.sock
 
-Where:
+Or alternatively (though [not recommended](https://www.spice-space.org/spice-user-manual.html#spice-client)):
 
- * **`SPICE` (default: `5930`):** port to connect on
+    spicy --uri spice+unix://spice.sock
 
 # Usage
 
-Once the image has built (typical build time is 30 minutes), the single output artefact is a qcow2 image located at `output-main/packer-main`.
+Once the image has built (typical build time is 30 minutes), the single output artefact is a qcow2 image located at `output/packer-main`.
 
 To start a VM using this image, run:
 
@@ -127,7 +126,7 @@ Points of interest:
 
  * image has an snapshot called 'initial' which provides you with a point to restore to using
 
-       qemu-img snapshot -a initial output-main/packer-main
+       qemu-img snapshot -a initial output/packer-main
 
 ## Examples
 
