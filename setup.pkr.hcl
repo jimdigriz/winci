@@ -68,7 +68,6 @@ source "qemu" "main" {
   #skip_compaction = true
   qemu_img_args {
     create = [ "-o", "lazy_refcounts=on" ]
-    # using one coroutine is 2x faster than any higher value (compression?)
     convert = [ "-o", "lazy_refcounts=on", "-o", "compression_type=zstd" ]
   }
 
