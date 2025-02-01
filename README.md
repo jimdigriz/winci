@@ -1,10 +1,10 @@
-Create suitable Microsoft Windows images for CI.
+Build sMicrosoft Windows images for CI with the VirtIO drivers installed and remote access enabled (WinRM, SSH and RDP).
 
 This work was sponsored by [InkBridge Networks](https://inkbridgenetworks.com/).
 
 ## Issues
 
- * ...still yet to describe how to use this image (ie. through WinRM and/or OpenSSH) for CI purposes.
+ * ...still yet to describe how to use this image (ie. through WinRM and/or OpenSSH) for CI purposes
  * find a way to disable Windows Defender from the CLI without a reboot
      * this does *not* work as the 'Tamper Protection' needs to be disabled from meat space:
 
