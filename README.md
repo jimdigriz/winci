@@ -117,13 +117,13 @@ Where:
 
  * **`IMAGE` (default `output/packer-main`):** point to the QCOW2 image to use as the main disk
  * **`CORES`/`RAM`/`ACCEL`/`SPICE`:** as above for `build.sh`
- * **`VNC` (default: `5900`): port to listen for VNC connections
- * **`WINRM` (default: 5985`): port to listen for WinRM connections
- * **`RDP` (default: `3389`): port to listen for RDP (remote desktop) connections
- * **`SSH` (default: `2222`): port to listen for SSH connections
+ * **`VNC` (default: `5900`):** port to listen for VNC connections
+ * **`WINRM` (default: 5985`):** port to listen for WinRM connections
+ * **`RDP` (default: `3389`):** port to listen for RDP (remote desktop) connections
+ * **`SSH` (default: `2222`):** port to listen for SSH connections
     * connect using something like:
 
-        ssh -o PasswordAuthentication=yes -p 2222 Administrator@localhost
+          ssh -o PasswordAuthentication=yes -p 2222 Administrator@localhost
 
 Points of interest:
 
