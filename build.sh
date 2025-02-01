@@ -2,7 +2,7 @@
 
 set -eu
 
-win11_locale () {
+locale () {
 	case "$(echo $1 | cut -d _ -f 3)" in
 	English)		echo en-us;;
 	EnglishInternational)	echo en-gb;;
@@ -16,27 +16,24 @@ win11_locale () {
 }
 _IMAGE=$(basename "$IMAGE")
 case "$_IMAGE" in
+Win11_*|Windows11_*)	WINVER=11;;
+Win10_*|Windows10_*)	WINVER=10;;
+*)			echo unable to determine version of Windows >&2;
+			exit 1
+			;;
+esac
+case "$_IMAGE" in
 # main
-Win11_*)	WINVER=11
-		VERSION=$(echo $_IMAGE | cut -d _ -f 2)
-		LOCALE=$(win11_locale $_IMAGE)
-		;;
-Win10_*)	WINVER=10
-		VERSION=$(echo $_IMAGE | cut -d _ -f 2)
-		LOCALE=$(win11_locale $_IMAGE)
-		;;
+Win1[10]_*)		VERSION=$(echo $_IMAGE | cut -d _ -f 2)
+			LOCALE=$(locale $_IMAGE)
+			;;
 # insider preview
-Windows11_*)	WINVER=11;
-		VERSION=$(echo $_IMAGE | cut -d _ -f 6 | cut -d . -f 1-2)
-		LOCALE=$(echo $_IMAGE | cut -d _ -f 5)
-		;;
-Windows10_*)	WINVER=10;
-		VERSION=$(echo $_IMAGE | cut -d _ -f 6 | cut -d . -f 1-2)
-		LOCALE=$(echo $_IMAGE | cut -d _ -f 5)
-		;;
-*)		echo unable to determine version of Windows >&2;
-		exit 1
-		;;
+Windows1[10]_*)		VERSION=$(echo $_IMAGE | cut -d _ -f 6 | cut -d . -f 1-2 | tr . -)
+			LOCALE=$(echo $_IMAGE | cut -d _ -f 5)
+			;;
+*)			echo unable to determine version of Windows >&2;
+			exit 1
+			;;
 esac
 
 : ${VIRTIO:=virtio-win.iso}
@@ -75,7 +72,6 @@ m4 \
 		-D WINVER=$WINVER \
 		-D VERSION=$VERSION \
 		-D LOCALE=$LOCALE \
-		-D COMMITID=$(git rev-parse --short HEAD)$(git diff-files --quiet || printf -- D) \
 		-D PASSWORD=${PASSWORD:-password} \
 	Autounattend.xml.m4 > Autounattend.xml
 

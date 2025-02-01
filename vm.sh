@@ -29,8 +29,8 @@ exec qemu-system-x86_64 \
 	-parallel none \
 	-vga ${VGA:-virtio} \
 	-device virtio-serial-pci \
-	-vnc 127.0.0.1:$((${VNC_PORT:-5900} - 5900)) \
-	-netdev user,id=user.0,hostfwd=tcp:127.0.0.1:${SSH_PORT:-2222}-:22,hostfwd=tcp:127.0.0.1:${WINRM_PORT:-5985}-:5985,hostfwd=tcp:127.0.0.1:${RDP_PORT:-3389}-:3389 \
+	-vnc 127.0.0.1:$((${VNC:-5900} - 5900)) \
+	-netdev user,id=user.0,hostfwd=tcp:127.0.0.1:${SSH:-2222}-:22,hostfwd=tcp:127.0.0.1:${WINRM:-5985}-:5985,hostfwd=tcp:127.0.0.1:${RDP:-3389}-:3389 \
 	-device virtio-net-pci,netdev=user.0 \
 	-device virtio-balloon \
 	-device virtio-rng-pci,max-bytes=1024,period=1000 \

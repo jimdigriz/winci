@@ -209,7 +209,7 @@ ifelse(WINVER, `10', dnl Causes Windows 11 install to fail with: Error code: 0x8
 			<OEMInformation>
 				<HelpCustomized>false</HelpCustomized>
 			</OEMInformation>
-			<ComputerName>`W'VERSION-COMMITID</ComputerName>
+			<ComputerName>`W'WINVER-VERSION</ComputerName>
 			<TimeZone>UTC</TimeZone>
 			<RegisteredOwner/>
 		</component>

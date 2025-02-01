@@ -111,18 +111,18 @@ Once the image has built (typical build time is 30 minutes), the single output a
 
 To start a VM using this image, run:
 
-    make vm CORES=2 RAM=4096 VNC=5900 SSH=2222 SPICE=5930 WINRM=5985 RDP=3389
+    env CORES=2 RAM=4096 VNC=5900 SSH=2222 SPICE=5930 WINRM=5985 RDP=3389 sh vm.sh
+
 Points of interest:
 
  * you will be presented with the [QEMU monitor](https://qemu.readthedocs.io/en/latest/system/monitor.html)
  * you can access the VM either using
      * Graphically
-         * your VNC viewer (defaults to `:0` aka port `5900`, or if that is in use increments to the next free port)
-         * `make spice` as before
-         * use an RDP (Remote Desktop) client pointing at `3389/tcp`
+         * your VNC viewer (defaults to `:0` aka port `5900` (environment variable `VNC`), or if that is in use increments to the next free port)
+         * use an RDP (Remote Desktop) client pointing at `3389/tcp` (environment variable `RDP`)
      * Terminal connect over `localhost` (bound to `127.0.0.1`) using `Administrator`/`password` as your credentials
-         * WinRM to `5930/tcp`
-         * SSH to `2222/tcp`
+         * WinRM to `5985/tcp` (environment variable `WINRM`)
+         * SSH to `2222/tcp` (environment variable `SSH`)
             * if SCP does not work for you, try including the `-O` parameter to [use the legacy SCP protocol which seems to work](https://github.com/PowerShell/Win32-OpenSSH/issues/1945#issuecomment-1311251741)
  * we use the image in 'snapshot' mode with means nothing is persisted back to the image
  * if you wish to persist your changes you should halt (*not* shutdown) your VM and run from the monitor console
