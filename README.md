@@ -1,4 +1,4 @@
-Build Microsoft Windows images for CI with the VirtIO drivers installed and remote access enabled (WinRM, SSH and RDP).
+Build Microsoft Windows images for QEMU to run for the purposes of continuous integration (CI) including the VirtIO drivers and remote access enabled (WinRM, SSH and RDP).
 
 This work was sponsored by [InkBridge Networks](https://inkbridgenetworks.com/).
 
