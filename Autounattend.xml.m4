@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Windows Templates for Packer - https://github.com/StefanScherer/packer-windows -->
 <!-- Answer files (unattend.xml) - https://docs.microsoft.com/windows-hardware/manufacture/desktop/update-windows-settings-and-scripts-create-your-own-answer-file-sxs -->
 <!-- Unattended Windows Setup Reference - https://docs.microsoft.com/windows-hardware/customize/desktop/unattend/ -->
+<!-- Windows Templates for Packer - https://github.com/StefanScherer/packer-windows -->
 <!-- Unattend Generator - https://schneegans.de/windows/unattend-generator/ -->
 <unattend xmlns="urn:schemas-microsoft-com:unattend" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State">
 	<settings pass="windowsPE">
@@ -88,7 +88,6 @@ ifelse(WINVER, `10', dnl Causes Windows 11 install to fail with: Error code: 0x8
 			</RunSynchronous>
 
 			<DiskConfiguration>
-				<DisableEncryptedDiskProvisioning>false</DisableEncryptedDiskProvisioning>
 				<Disk wcm:action="add">
 					<DiskID>0</DiskID>
 					<CreatePartitions>
