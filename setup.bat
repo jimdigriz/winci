@@ -1,6 +1,7 @@
 reg add "HKLM\SYSTEM\CurrentControlSet\Services\W32Time\Parameters" /v Type /d NoSync /f
 reg add "HKLM\SYSTEM\CurrentControlSet\Control\TimeZoneInformation" /v RealTimeIsUniversal /t REG_QWORD /d 1 /f
 
+@rem if it stalls here make sure you are using no later than 0.1.240 (fails also with 0.1.266)
 E:\virtio-win-gt-x64.msi /quiet /passive /norestart
 E:\virtio-win-guest-tools.exe /quiet /passive /norestart
 
@@ -37,7 +38,7 @@ reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management
 @rem no need to hibernate in a VM
 powercfg.exe /hibernate off
 
-@rem qcow2 image is compressed with zlib which is better than the NTFS method
+@rem qcow2 image is compressed with zstd which is better than the NTFS method
 @rem with compactos:always/sdelete 30min build and +10% larger qcow2
 @rem with compactos:never 25min build and +5% larger qcow2
 @rem not run at all, 20min build

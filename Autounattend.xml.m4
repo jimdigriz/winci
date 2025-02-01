@@ -35,12 +35,13 @@
 				<PathAndCredentials wcm:action="add" wcm:keyValue="5">
 					<Path>E:\pvpanic\`w'WINVER\amd64</Path>
 				</PathAndCredentials>
+ifelse(WINVER, `10', dnl Causes Windows 11 install to fail with: Error code: 0x80070103 - 0x40031
 				<PathAndCredentials wcm:action="add" wcm:keyValue="6">
 					<Path>E:\qemufwcfg\`w'WINVER\amd64</Path>
 				</PathAndCredentials>
 				<PathAndCredentials wcm:action="add" wcm:keyValue="7">
 					<Path>E:\smbus\`w'WINVER\amd64</Path>
-				</PathAndCredentials>
+				</PathAndCredentials>)
 				<PathAndCredentials wcm:action="add" wcm:keyValue="8">
 					<Path>E:\viofs\`w'WINVER\amd64</Path>
 				</PathAndCredentials>
@@ -87,12 +88,17 @@
 			</RunSynchronous>
 
 			<DiskConfiguration>
+				<DisableEncryptedDiskProvisioning>false</DisableEncryptedDiskProvisioning>
 				<Disk wcm:action="add">
 					<DiskID>0</DiskID>
-					<WillWipeDisk>true</WillWipeDisk>
 					<CreatePartitions>
 						<CreatePartition wcm:action="add">
 							<Order>1</Order>
+							<Type>Primary</Type>
+							<Size>300</Size>
+						</CreatePartition>
+						<CreatePartition wcm:action="add">
+							<Order>2</Order>
 							<Type>Primary</Type>
 							<Extend>true</Extend>
 						</CreatePartition>
@@ -101,6 +107,13 @@
 						<ModifyPartition wcm:action="add">
 							<Order>1</Order>
 							<PartitionID>1</PartitionID>
+							<Label>System</Label>
+							<Format>NTFS</Format>
+							<Active>true</Active>
+						</ModifyPartition>
+						<ModifyPartition wcm:action="add">
+							<Order>2</Order>
+							<PartitionID>2</PartitionID>
 							<Label>Windows</Label>
 							<Letter>C</Letter>
 							<Format>NTFS</Format>
@@ -120,7 +133,7 @@
 					</InstallFrom>
 					<InstallTo>
 						<DiskID>0</DiskID>
-						<PartitionID>1</PartitionID>
+						<PartitionID>2</PartitionID>
 					</InstallTo>
 				</OSImage>
 			</ImageInstall>
@@ -182,7 +195,7 @@
 		</component>
 	</settings>
 
-        <settings pass="generalize">
+	<settings pass="generalize">
 		<component name="Microsoft-Windows-PnpSysprep"
 				publicKeyToken="31bf3856ad364e35" language="neutral"
 				versionScope="nonSxS" processorArchitecture="amd64">
@@ -190,7 +203,7 @@
 		</component>
 	</settings>
 
-        <settings pass="specialize">
+	<settings pass="specialize">
 		<component name="Microsoft-Windows-Shell-Setup"
 				publicKeyToken="31bf3856ad364e35" language="neutral"
 				versionScope="nonSxS" processorArchitecture="amd64">

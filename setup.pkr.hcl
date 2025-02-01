@@ -61,7 +61,8 @@ source "qemu" "main" {
   shutdown_command = "shutdown /s /t 10 /f /d p:4:1 /c \"Packer Shutdown\""
 
   format = "qcow2"
-  disk_size = "40960M"
+  # Windows 11 wants at least 52GiB
+  disk_size = "60G"
   disk_compression = true
   # we would prefer to do this ourselves to see a progress bar, but packer (1.8.1) ignores this option and eats stdout
   #skip_compaction = true
@@ -83,7 +84,9 @@ source "qemu" "main" {
 
   qemuargs = concat([
     [ "-machine", "q35,accel=${var.accel}" ],
-    [ "-cpu", "qemu64,+ssse3,+sse4.1,+sse4.2" ],
+    # Windows 11 requires all these extra CPU flags whilst Windows 10 could just use 'qemu64' alone
+    # POPCNT is caught during install, whilst lacking the others will just prevent the install starting and return back to the BIOS screen
+    [ "-cpu", "qemu64,+ssse3,+sse4.1,+sse4.2,+popcnt" ],
     [ "-smp", "cpus=${var.cores}" ],
     [ "-m", var.ram ],
     [ "-nodefaults" ],

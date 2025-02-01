@@ -95,9 +95,15 @@ For a better and faster experience, you should use SPICE which you can connect w
 
     remote-viewer spice+unix://spice.sock
 
+**N.B.** less CPU usage if you disable compression (`--spice-preferred-compression=off`)
+
 Or alternatively (though [not recommended](https://www.spice-space.org/spice-user-manual.html#spice-client)):
 
     spicy --uri spice+unix://spice.sock
+
+### Troubleshooting
+
+If the build fails for some reasons, you should [open a command prompt (`Shift-F10`) and use Notepad to read some `.log` or `.xml` files](https://learn.microsoft.com/en-us/answers/questions/242735/windows-10-unattended-install-log-file-location).
 
 # Usage
 

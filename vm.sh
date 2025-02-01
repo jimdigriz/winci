@@ -21,7 +21,7 @@ export TMPDIR="$PWD"
 
 exec qemu-system-x86_64 \
 	-machine q35,accel=${ACCEL:-tcg} \
-	-cpu qemu64,+ssse3,+sse4.1,+sse4.2 \
+	-cpu qemu64,+ssse3,+sse4.1,+sse4.2,+popcnt \
 	-smp cpus=${CORES:-2} \
 	-m ${RAM:-4096} \
 	-nodefaults \
