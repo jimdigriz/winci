@@ -121,6 +121,9 @@ Where:
  * **`WINRM` (default: 5985`):** port to listen for WinRM connections
  * **`RDP` (default: `3389`):** port to listen for RDP (remote desktop) connections
  * **`SSH` (default: `2222`):** port to listen for SSH connections (connect using something like: `ssh -o PasswordAuthentication=yes -p 2222 Administrator@localhost`)
+     * to use [public key authentication](https://learn.microsoft.com/en-us/windows-server/administration/openssh/openssh_keymanagement), copy your public key(s) using something like:
+
+           scp -o PasswordAuthentication=yes -P 2222 ~/.ssh/authorized_keys Administrator@localhost:"\\ProgramData\\ssh\\administrators_authorized_keys"
 
 Points of interest:
 
