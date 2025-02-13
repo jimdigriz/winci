@@ -16,7 +16,7 @@ esac
 # support screen resizing (virtio seems not to work)
 VGA=qxl
 
-# /tmp is usually noexec...unless you are insane...
+# snapshot journal needs to be here otherwise we will run out of space fast
 export TMPDIR="$PWD"
 
 exec qemu-system-x86_64 \
@@ -35,11 +35,12 @@ exec qemu-system-x86_64 \
 	-device virtio-balloon \
 	-device virtio-rng-pci,max-bytes=1024,period=1000 \
 	-device ahci,id=ahci \
-	-drive if=virtio,file=$IMAGE,discard=unmap,detect-zeroes=unmap,format=qcow2,cache=unsafe \
+	-drive if=virtio,file=$IMAGE,discard=unmap,detect-zeroes=unmap,format=qcow2,snapshot=on,cache=unsafe \
 	-drive if=none,id=cdrom0,media=cdrom,readonly=on \
 	-device ide-cd,drive=cdrom0,bus=ahci.1 \
 	-device qemu-xhci \
 	-device usb-tablet \
 	-device usb-kbd \
 	-monitor stdio \
-	${SPICE:+-spice unix=on,addr=${SPICE},disable-ticketing=on -device virtserialport,chardev=spicechannel0,name=com.redhat.spice.0 -chardev spicevmc,id=spicechannel0,name=vdagent}
+	${SPICE:+-spice unix=on,addr=${SPICE},disable-ticketing=on -device virtserialport,chardev=spicechannel0,name=com.redhat.spice.0 -chardev spicevmc,id=spicechannel0,name=vdagent} \
+	"$@"
