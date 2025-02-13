@@ -2,6 +2,9 @@
 
 set -eu
 
+# think of the children!
+set -m
+
 # deps for debian:bookworm-slim
 # apt install --no-install-recommends \
 #	build-essential \
