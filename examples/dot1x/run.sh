@@ -56,8 +56,10 @@ cleanup () {
 	[ -z "${PCAP:-}" ] || {
 		kill -TERM $PCAP
 		while kill -0 $PCAP 2>/dev/null; do sleep 0.5; done
-		editcap --inject-secrets tls,logs/radiusd/sslkey.log logs/dump.pcap logs/dump.pcapng
-		rm logs/dump.pcap
+		[ ! -f logs/radiusd/sslkey.log ] || {
+			editcap --inject-secrets tls,logs/radiusd/sslkey.log logs/dump.pcap logs/dump.pcapng
+			rm logs/dump.pcap logs/radiusd/sslkey.log
+		}
 	}
 }
 trap cleanup EXIT INT TERM
