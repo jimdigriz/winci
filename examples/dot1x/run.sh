@@ -29,9 +29,13 @@ JOBS=$(($(getconf _NPROCESSORS_ONLN) + 1))
 IFACE=winci-dot1x
 MON=qemu-monitor
 
+qemu_mon () {
+	echo $@ >&9
+}
+
 cleanup () {
 	[ ! -p "$MON" ] || {
-		echo quit >&9
+		qemu_mon quit
 		exec 9>&-
 		rm -f "$MON"
 	}
@@ -48,6 +52,13 @@ cleanup () {
 	}
 
 	sudo ip link del $IFACE 2>/dev/null || true
+
+	[ -z "${PCAP:-}" ] || {
+		kill -TERM $PCAP
+		while kill -0 $PCAP 2>/dev/null; do sleep 0.5; done
+		editcap --inject-secrets tls,logs/radiusd/sslkey.log logs/dump.pcap logs/dump.pcapng
+		rm logs/dump.pcap
+	}
 }
 trap cleanup EXIT INT TERM
 
@@ -90,9 +101,9 @@ mkfifo "$MON"
 	-netdev tap,id=user.1,ifname=$IFACE,script=no,downscript=no \
 	-device virtio-net-pci,netdev=user.1 <"$MON" >/dev/null &
 QEMU=$!
-exec 9>> "$MON"
+exec 9> "$MON"
 # initially unplug NIC
-echo set_link user.1 off >&9
+qemu_mon set_link user.1 off
 
 SSHARGS="-o ConnectTimeout=3 -o Port=2222 -o User=Administrator -o PasswordAuthentication=yes"
 guest_ssh () {
@@ -103,9 +114,11 @@ guest_scp () {
 }
 # wait for the VM to be ready
 while ! guest_ssh echo >/dev/null 2>&1; do sleep 1; done
+
 # start dot1x
 guest_ssh sc config dot3svc start=demand
 guest_ssh sc start dot3svc
+
 # install certificates
 guest_scp freeradius-server/raddb/certs/ca.der freeradius-server/raddb/certs/client.p12 localhost:Desktop/
 guest_ssh certutil.exe -addstore Root Desktop/ca.der
@@ -120,9 +133,30 @@ guest_ssh 'netsh lan add profile interface="Ethernet 2" filename="Desktop/Ethern
 guest_ssh 'netsh lan set eapuserdata interface="Ethernet 2" filename="Desktop/Credentials.xml" allusers=yes'
 rm Ethernet.xml
 
-# turn on the NIC to kick off the authentication
-echo set_link user.1 on >&9
+sudo tcpdump -q -n -p -Z $USER -i lo -U -w logs/dump.pcap udp and port 1812 &
+PCAP=$!
 
-sleep inf
+# turn on the NIC to kick off the authentication
+qemu_mon set_link user.1 on
+
+C=60
+R=-1
+while [ $C -gt 0 ]; do
+	C=$((C - 1))
+	S=$(guest_ssh netsh lan show interfaces | sed -ne '/^\s*Name\s*:\s*Ethernet 2\s*$/,/^\s*State\s*/ { s/^\s*State\s*: // p }')
+	case "$S" in
+	*succeeded*)
+		R=0
+		break
+		;;
+	*failed*)
+		R=1
+		break
+		;;
+	esac
+	sleep 0.5
+done
+
+qemu_mon set_link user.1 off
 
 exit 0
