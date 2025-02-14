@@ -29,6 +29,8 @@ JOBS=$(($(getconf _NPROCESSORS_ONLN) + 1))
 IFACE=winci-dot1x
 MON=qemu-monitor
 
+TEST=eap-ttls/pap
+
 qemu_mon () {
 	echo $@ >&9
 }
@@ -37,18 +39,20 @@ cleanup () {
 	[ ! -p "$MON" ] || {
 		qemu_mon quit
 		exec 9>&-
-		rm -f "$MON"
+		rm -f spice.sock "$MON"
 	}
 
 	[ -z "${FREERAD:-}" ] || {
 		./freeradius-server/scripts/bin/radmin -f radiusd.sock -e terminate >/dev/null 2>&1
 		while kill -0 $FREERAD 2>/dev/null; do sleep 0.5; done
+		rm -f radiusd.sock
 	}
 
 	[ -z "${HOSTAPD:-}" ] || {
 		sudo kill -TERM $HOSTAPD
 		while kill -0 $HOSTAPD 2>/dev/null; do sleep 0.5; done
-		rm -f hostapd.conf
+		sudo rm -r hostapd
+		rm hostapd.conf
 	}
 
 	sudo ip link del $IFACE 2>/dev/null || true
@@ -112,31 +116,35 @@ guest_ssh () {
 	env SSHPASS=${PASSWORD:-password} sshpass -e ssh $SSHARGS localhost "$@"
 }
 guest_scp () {
-	env SSHPASS=${PASSWORD:-password} sshpass -e scp $SSHARGS "$@"
+	# large transfers fail without '-O'
+	env SSHPASS=${PASSWORD:-password} sshpass -e scp $SSHARGS -O "$@"
 }
 # wait for the VM to be ready
 while ! guest_ssh echo >/dev/null 2>&1; do sleep 1; done
 
 # start dot1x
-guest_ssh sc config dot3svc start=demand
-guest_ssh sc start dot3svc
+guest_ssh sc config dot3svc start=demand >/dev/null
+guest_ssh sc start dot3svc >/dev/null
 
 # install certificates
 guest_scp freeradius-server/raddb/certs/ca.der freeradius-server/raddb/certs/client.p12 localhost:Desktop/
-guest_ssh certutil.exe -addstore Root Desktop/ca.der
-guest_ssh certutil.exe -p whatever -importpfx Desktop/client.p12
+guest_ssh certutil.exe -addstore Root Desktop/ca.der > /dev/null
+guest_ssh certutil.exe -p whatever -importpfx Desktop/client.p12 >/dev/null
 
 # install profile
 CAHASH=$(openssl dgst -sha1 -c freeradius-server/raddb/certs/ca.der | sed -e 's/.*= //; s/:/ /g')
+# for reference, this is ';' seperated which makes perfect sense in an XML document...right?
 SERVERNAMES=$(openssl x509 -noout -subject -in freeradius-server/raddb/certs/server.pem | sed -e 's/.* CN = \([^,]\+\).*/\1/')
-m4 -DCAHASH="$CAHASH" -DSERVERNAMES="$SERVERNAMES" tests/eap-ttls/pap/Ethernet.xml.m4 > Ethernet.xml
-guest_scp Ethernet.xml tests/eap-ttls/pap/Credentials.xml localhost:Desktop/
-guest_ssh 'netsh lan add profile interface="Ethernet 2" filename="Desktop/Ethernet.xml"'
-guest_ssh 'netsh lan set eapuserdata interface="Ethernet 2" filename="Desktop/Credentials.xml" allusers=yes'
+m4 -DCAHASH="$CAHASH" -DSERVERNAMES="$SERVERNAMES" tests/$TEST/Ethernet.xml.m4 > Ethernet.xml
+guest_scp Ethernet.xml tests/$TEST/Credentials.xml localhost:Desktop/
+guest_ssh 'netsh lan add profile interface="Ethernet 2" filename="Desktop/Ethernet.xml"' >/dev/null
+guest_ssh 'netsh lan set eapuserdata interface="Ethernet 2" filename="Desktop/Credentials.xml" allusers=yes' >/dev/null
 rm Ethernet.xml
 
-sudo tcpdump -q -n -p -Z $USER -i lo -U -w logs/dump.pcap udp and port 1812 &
+sudo tcpdump -q -n -p -Z $USER -i lo -U -w logs/dump.pcap udp and port 1812 >/dev/null &
 PCAP=$!
+
+guest_ssh netsh trace start wireless_dbg globalLevel=0xff correlation=yes perfMerge=no >/dev/null
 
 # turn on the NIC to kick off the authentication
 qemu_mon set_link user.1 on
@@ -158,6 +166,13 @@ while [ $C -gt 0 ]; do
 	esac
 	sleep 0.5
 done
+
+guest_ssh netsh trace stop >/dev/null
+
+mkdir logs/win
+guest_scp localhost:/Users/Administrator/AppData/Local/Temp/NetTraces/NetTrace.etl logs/win/
+
+sleep inf
 
 qemu_mon set_link user.1 off
 
