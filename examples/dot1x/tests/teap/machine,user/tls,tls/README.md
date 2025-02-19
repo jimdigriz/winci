@@ -27,8 +27,8 @@ To configure the Smartcard emulation you will need `certutil` (from the Debian/U
 Then start the VM using:
 
     env TEST=teap/machine,user/tls,tls ... sh run.sh \
-	-usb \
-	-device usb-ccid \
-	-device ccid-card-emulated,backend=certificates,db=sql:nssdb,cert1=id-cert,cert2=signing-cert,cert3=encryption-cert
+    	-usb \
+    	-device usb-ccid \
+    	-device ccid-card-emulated,backend=certificates,db=sql:nssdb,cert1=id-cert,cert2=signing-cert,cert3=encryption-cert
 
 This will then perform the machine authentication, and when starting the user authentication a popup appears on Windows explaining that the Smartcard does not contain usable materials.
