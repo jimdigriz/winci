@@ -176,20 +176,23 @@ while [ $C -gt 0 ]; do
 	S=$(guest_ssh netsh lan show interfaces | sed -ne '/^\s*Name\s*:\s*Ethernet 2\s*$/,/^\s*State\s*/ { s/^\s*State\s*: // p }')
 	case "$S" in
 	*succeeded*)
+		echo SUCCESS
 		RC=0
 		break
 		;;
 	*failed*)
+		echo FAILURE
 		RC=1
 		break
 		;;
 	esac
 	sleep 0.5
 done
+[ $RC -ne 2 ] || echo TIMEOUT
 
 [ -z "${NETTRACE:-}" ] || {
 	guest_ssh netsh trace stop >/dev/null
-	guest_ssh netsh trace convert Desktop/trace.etl
+	guest_ssh netsh trace convert Desktop/trace.etl >/dev/null
 	mkdir logs/win
 	guest_scp 'localhost:Desktop/trace.etl' logs/win/
 	guest_scp 'localhost:Desktop/trace.txt' logs/win/trace.txt.orig
