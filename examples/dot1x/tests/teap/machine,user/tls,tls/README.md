@@ -5,6 +5,7 @@ This test does not work as:
     * Windows supports the emulated Smartcard *reader*, it does not support the emulated Smartcard it-self
     * OpenSC seems to be able to talk to it, but it was non-obvious how to get this working
        * it could see 'John Doe' but it could not initialise the card claiming to be unsupported
+ * neither the Smartcard CA or client certificate has been added to FreeRADIUS's configuration to validate
 
 If someone has the answer here on how to resolve this, do let me know.
 
@@ -29,3 +30,5 @@ Then start the VM using:
 	-usb \
 	-device usb-ccid \
 	-device ccid-card-emulated,backend=certificates,db=sql:nssdb,cert1=id-cert,cert2=signing-cert,cert3=encryption-cert
+
+This will then perform the machine authentication, and when starting the user authentication a popup appears on Windows explaining that the Smartcard does not contain usable materials.
