@@ -158,7 +158,7 @@ guest_ssh 'netsh lan add profile interface="Ethernet 2" filename="Desktop/Ethern
 guest_ssh "netsh lan set eapuserdata interface=\"Ethernet 2\" filename=\"Desktop/Credentials.xml\" allusers=$ALLUSERS" >/dev/null
 rm Ethernet.xml
 
-sudo tcpdump -q -n -p -Z $USER -i lo -U -w logs/dump.pcap udp and port 1812 >/dev/null &
+sudo tcpdump -q -n -p -Z $USER -i lo -U -w logs/dump.pcap udp and port 1812 2>/dev/null &
 PCAP=$!
 
 [ -z "${NETTRACE:-}" ] || {
@@ -170,17 +170,17 @@ PCAP=$!
 qemu_mon set_link user.1 on
 
 C=60
-R=-1
+RC=2
 while [ $C -gt 0 ]; do
 	C=$((C - 1))
 	S=$(guest_ssh netsh lan show interfaces | sed -ne '/^\s*Name\s*:\s*Ethernet 2\s*$/,/^\s*State\s*/ { s/^\s*State\s*: // p }')
 	case "$S" in
 	*succeeded*)
-		R=0
+		RC=0
 		break
 		;;
 	*failed*)
-		R=1
+		RC=1
 		break
 		;;
 	esac
@@ -199,4 +199,4 @@ done
 
 qemu_mon set_link user.1 off
 
-exit 0
+exit $RC
