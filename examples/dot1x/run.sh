@@ -10,6 +10,7 @@ set -m
 #	build-essential \
 #	ca-certificates \
 #	git \
+#	libc-bin \
 #	libssl-dev \
 #	libtalloc-dev \
 #	qemu-system \
@@ -38,9 +39,11 @@ qemu_mon () {
 }
 
 cleanup () {
+	trap - EXIT INT TERM
+
 	[ ! -p "$MON" ] || {
 		qemu_mon quit || true
-		exec 9>&-
+		exec 9>&- || true
 		rm -f spice.sock "$MON"
 	}
 
@@ -58,8 +61,6 @@ cleanup () {
 		#rm hostapd.conf
 	}
 
-	sudo ip link del $IFACE 2>/dev/null || true
-
 	[ -z "${PCAP:-}" ] || {
 		kill -TERM $PCAP || true
 		while kill -0 $PCAP 2>/dev/null; do sleep 0.5; done
@@ -71,6 +72,8 @@ cleanup () {
 		fi
 		rm logs/dump.pcap
 	}
+
+	sudo ip link del $IFACE 2>/dev/null || true
 }
 trap cleanup EXIT INT TERM
 
@@ -105,6 +108,11 @@ sudo ./hostap/hostapd/hostapd hostapd.conf > logs/hostapd/stdout &
 HOSTAPD=$!
 
 mkdir logs/radiusd
+if [ -f tests/$TEST/eap ]; then
+	ln -f -s -t freeradius-server/raddb/mods-enabled/ ../../../tests/$TEST/eap
+else
+	ln -f -s -t freeradius-server/raddb/mods-enabled/ ../mods-available/eap
+fi
 env SSLKEYLOGFILE=logs/radiusd/sslkey.log ./freeradius-server/scripts/bin/radiusd -X > logs/radiusd/stdout &
 FREERAD=$!
 
@@ -112,8 +120,7 @@ mkfifo "$MON"
 /bin/sh ../../vm.sh \
 	-netdev tap,id=user.1,ifname=$IFACE,script=no,downscript=no \
 	-device virtio-net-pci,netdev=user.1 \
-	-usb -device usb-ccid -device ccid-card-emulated,backend=certificates,db=nssdb,cert1=cert1,cert2=cert2,cert3=cert3 \
-	<"$MON" >/dev/null &
+	"$@" <"$MON" >/dev/null &
 QEMU=$!
 exec 9> "$MON"
 # initially unplug NIC
@@ -140,11 +147,11 @@ guest_ssh certutil.exe -addstore Root Desktop/ca.der > /dev/null
 guest_ssh certutil.exe -p whatever -importpfx Desktop/client.p12 >/dev/null
 
 # install profile
-CAHASHSHA1=$(openssl dgst -sha1 -c freeradius-server/raddb/certs/ca.der | sed -e 's/.*= //; s/:/ /g')
-CAHASHSHA256=$(openssl dgst -sha256 -c freeradius-server/raddb/certs/ca.der | sed -e 's/.*= //; s/:/ /g')
+CAHASH=$(openssl dgst -sha1 -c freeradius-server/raddb/certs/ca.der | sed -e 's/.*= //; s/:/ /g')
+CAHASH2=$(openssl dgst -sha256 -c freeradius-server/raddb/certs/ca.der | sed -e 's/.*= //; s/:/ /g')
 # for reference, this is ';' seperated which makes perfect sense in an XML document...right?
 SERVERNAMES=$(openssl x509 -noout -subject -in freeradius-server/raddb/certs/server.pem | sed -e 's/.* CN = \([^,]\+\).*/\1/')
-m4 -DCAHASH="$CAHASHSHA1" -DCAHASHSHA256="$CAHASHSHA256" -DSERVERNAMES="$SERVERNAMES" tests/$TEST/Ethernet.xml.m4 > Ethernet.xml
+m4 -DCAHASH="$CAHASH" -DCAHASH2="$CAHASH2" -DSERVERNAMES="$SERVERNAMES" tests/$TEST/Ethernet.xml.m4 > Ethernet.xml
 guest_scp Ethernet.xml tests/$TEST/Credentials.xml localhost:Desktop/
 guest_ssh 'netsh lan add profile interface="Ethernet 2" filename="Desktop/Ethernet.xml"' >/dev/null
 [ -f "tests/$TEST/allusers" ] && ALLUSERS=yes || ALLUSERS=no
@@ -156,7 +163,7 @@ PCAP=$!
 
 [ -z "${NETTRACE:-}" ] || {
 	# TEAP is seemingly the only method that logs to the net tracer
-	guest_ssh netsh trace start wireless_dbg globalLevel=0xff capture=yes tracefile=Desktop/trace.etl >/dev/null
+	guest_ssh netsh trace start wireless_dbg globalLevel=0xff tracefile=Desktop/trace.etl capture=no report=no >/dev/null
 }
 
 # turn on the NIC to kick off the authentication
@@ -184,10 +191,11 @@ done
 	guest_ssh netsh trace stop >/dev/null
 	guest_ssh netsh trace convert Desktop/trace.etl
 	mkdir logs/win
-	guest_scp 'localhost:Desktop/trace.*' logs/win/
+	guest_scp 'localhost:Desktop/trace.etl' logs/win/
+	guest_scp 'localhost:Desktop/trace.txt' logs/win/trace.txt.orig
+	iconv -f UTF-16LE -t UTF-8 logs/win/trace.txt.orig -o logs/win/trace.txt
+	rm logs/win/trace.txt.orig
 }
-
-sleep inf
 
 qemu_mon set_link user.1 off
 

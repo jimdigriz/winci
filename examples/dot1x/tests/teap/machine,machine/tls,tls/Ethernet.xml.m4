@@ -19,7 +19,8 @@
               <EapTeap xmlns="http://www.microsoft.com/provisioning/EapTeapConnectionPropertiesV1">
                 <ServerValidation>
                   <ServerNames>SERVERNAMES</ServerNames>
-                  <TrustedRootCAHash>CAHASH</TrustedRootCAHash>
+                  <!-- Windows 10 expects a SHA256 here, Windows 11 is happy with either SHA1 or SHA256 -->
+                  <TrustedRootCAHash>CAHASH2</TrustedRootCAHash>
                   <DisablePrompt>true</DisablePrompt>
                   <DownloadTrustedServerRoot>false</DownloadTrustedServerRoot>
                 </ServerValidation>
