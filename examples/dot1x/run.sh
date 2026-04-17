@@ -91,7 +91,7 @@ test -f "freeradius-server/.stamp_$FREERAD_REF" || {
 test -f "hostap/.stamp_$HOSTAPD_REF" || {
 	git clone --no-tags --depth 1 --single-branch --branch "$HOSTAPD_REF" "$HOSTAPD_GIT"
 	# CONFIG_TESTING_OPTIONS enabled use of SSLKEYLOG
-	sed -e 's/^#\?\(CONFIG_DRIVER_WIRED\)=.*/\1=y/; s/^#\?\(CONFIG_DRIVER_NL80211.*\)/#\1/; s/^#\?\(CONFIG_DRIVER_NONE\)=.*/\1=y/; s/^#\?\(CONFIG_EAP_TEAP\)=.*/\1=y/; s/^#\?\(CONFIG_TESTING_OPTIONS\)=.*/\1=y/' hostap/hostapd/defconfig > hostap/hostapd/.config
+	sed -e 's/^#\?\(CONFIG_DRIVER_WIRED\)=.*/\1=y/; s/^#\?\(CONFIG_DRIVER_NL80211.*\)/#\1/; s/^#\?\(CONFIG_DRIVER_NONE\)=.*/\1=y/; s/^#\?\(CONFIG_OWE\)/#\1/; s/^#\?\(CONFIG_EAP_TEAP\)=.*/\1=y/; s/^#\?\(CONFIG_TESTING_OPTIONS\)=.*/\1=y/' hostap/hostapd/defconfig > hostap/hostapd/.config
 	make -C hostap/hostapd -j $JOBS
 	touch "hostap/.stamp_$HOSTAPD_REF"
 }
