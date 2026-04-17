@@ -12,3 +12,5 @@ packer*
 *.qcow2
 *.der
 *.p12
+
+spice.sock

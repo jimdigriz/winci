@@ -31,17 +31,17 @@ You will need the following installed:
 You will also require the following assets:
 
  * [Packer](https://developer.hashicorp.com/packer) installed (linked from above) and available in your local path
-    * tested with version 1.12.0
- * placed at the top of the project directory, either a [Windows 10 or 11](https://www.microsoft.com/en-gb/software-download) or [Insider Preview](https://www.microsoft.com/en-us/software-download/windowsinsiderpreviewiso) ISO
+    * tested with version 1.15.1
+ * placed at the top of the project directory, either a [Windows 11](https://www.microsoft.com/software-download) or [Insider Preview](https://www.microsoft.com/software-download/windowsinsiderpreviewiso) ISO
     * tested with:
-       * Windows 11: `Win11_24H2_EnglishInternational_x64.iso` and `Windows11_InsiderPreview_Client_x64_en-gb_26100.1150.iso`
+       * Windows 11: `Win11_25H2_EnglishInternational_x64_v2.iso` and `Windows11_InsiderPreview_Client_x64_en-gb_26100.1150.iso`
        * Windows 10: `Win10_22H2_EnglishInternational_x64v1.iso` and `Windows10_InsiderPreview_Client_x64_en-gb_19045.1826.iso`
  * [Windows VirtIO Drivers ('stable' recommended) ISO](https://github.com/virtio-win/virtio-win-pkg-scripts) download page
     * tested with version 0.1.240
-    * [versions later than 0.1.240 (confirmed also with 0.1.266) seem not to work](https://github.com/virtio-win/virtio-win-guest-tools-installer/issues/64)
-       * version 0.1.266: drivers install but running either virtio-win-gt-x64 or virtio-win-guest-tools just stalls
+    * [versions later than 0.1.240 (confirmed with 0.1.266 and 0.1.285) seem not to work](https://github.com/virtio-win/virtio-win-guest-tools-installer/issues/64)
+       * version 0.1.266 (and 0.1.285): drivers install but running either virtio-win-gt-x64 or virtio-win-guest-tools just stalls
  * [Win32-OpenSSH](https://github.com/PowerShell/Win32-OpenSSH) 64bit MSI
-    * tested with version v9.8.1.0p1-Preview (`OpenSSH-Win64-v9.8.1.0.msi`)
+    * tested with version [v10.0.0.0p2-Preview (`OpenSSH-Win64-v10.0.0.0.msi`)](https://github.com/PowerShell/Win32-OpenSSH/releases/tag/10.0.0.0p2-Preview)
 
 Make sure you have at least 30 GiB of disk space to work with.
 
@@ -103,7 +103,7 @@ Or alternatively (though [not recommended](https://www.spice-space.org/spice-use
 
 ### Troubleshooting
 
-If the build fails for some reasons, you should [open a command prompt (`Shift-F10`) and use Notepad to read some `.log` or `.xml` files](https://learn.microsoft.com/en-us/answers/questions/242735/windows-10-unattended-install-log-file-location).
+If the build fails for some reasons, you should [open a command prompt (`Shift-F10`) and use Notepad to read some `.log` or `.xml` files](https://learn.microsoft.com/answers/questions/242735/windows-10-unattended-install-log-file-location).
 
 # Usage
 
@@ -121,7 +121,7 @@ Where:
  * **`WINRM` (default: 5985`):** port to listen for WinRM connections
  * **`RDP` (default: `3389`):** port to listen for RDP (remote desktop) connections
  * **`SSH` (default: `2222`):** port to listen for SSH connections (connect using something like: `ssh -o PasswordAuthentication=yes -p 2222 Administrator@localhost`)
-     * to use [public key authentication](https://learn.microsoft.com/en-us/windows-server/administration/openssh/openssh_keymanagement), copy your public key(s) using something like:
+     * to use [public key authentication](https://learn.microsoft.com/windows-server/administration/openssh/openssh_keymanagement), copy your public key(s) using something like:
 
            scp -o PasswordAuthentication=yes -P 2222 ~/.ssh/authorized_keys Administrator@localhost:"/ProgramData/ssh/administrators_authorized_keys"
 

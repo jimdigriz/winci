@@ -1,7 +1,7 @@
 reg add "HKLM\SYSTEM\CurrentControlSet\Services\W32Time\Parameters" /v Type /d NoSync /f
 reg add "HKLM\SYSTEM\CurrentControlSet\Control\TimeZoneInformation" /v RealTimeIsUniversal /t REG_QWORD /d 1 /f
 
-@rem if it stalls here make sure you are using no later than 0.1.240 (fails also with 0.1.266)
+@rem if it stalls here make sure you are using no later than 0.1.240 (fails also with 0.1.266 and 0.1.285)
 E:\virtio-win-gt-x64.msi /quiet /passive /norestart
 E:\virtio-win-guest-tools.exe /quiet /passive /norestart
 
